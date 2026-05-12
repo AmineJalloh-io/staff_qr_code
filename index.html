@@ -66,7 +66,7 @@ function submitData() {
   let id = document.getElementById("studentId").value.trim();
   let errorMsg = document.getElementById("errorMsg");
 
-  // Validate 6-digit ID
+  // Validate 5-digit ID
   let pattern = /^[0-9]{6}$/;
 
   if (!pattern.test(id)) {
