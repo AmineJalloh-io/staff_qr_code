@@ -1,105 +1,582 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Staff Access</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>QR Code | 24-Hour Single Access Webpage</title>
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<style>
-  body {
-    font-family: Arial;
-    background: #f4f4f4;
-    text-align: center;
-    margin-top: 100px;
-  }
+        body {
+            background: linear-gradient(145deg, #0b1120 0%, #111827 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-  .box {
-    background: white;
-    padding: 30px;
-    width: 320px;
-    margin: auto;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  }
+        .glass-card {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 56px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.2);
+            overflow: hidden;
+            backdrop-filter: blur(2px);
+            transition: all 0.3s ease;
+        }
 
-  input {
-    padding: 10px;
-    width: 90%;
-    margin-top: 10px;
-    font-size: 16px;
-  }
+        .header {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 2rem 1.8rem;
+            text-align: center;
+            color: white;
+        }
 
-  button {
-    margin-top: 15px;
-    padding: 10px 20px;
-    background: #007BFF;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, #a5f3fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
 
-  button:hover {
-    background: #0056b3;
-  }
+        .header p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 8px;
+        }
 
-  .error {
-    color: red;
-    margin-top: 10px;
-  }
-</style>
+        .badge-time {
+            background: #334155;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 60px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-top: 12px;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .info-panel {
+            background: #f8fafc;
+            border-radius: 28px;
+            padding: 1.2rem;
+            margin-bottom: 1.8rem;
+            border-left: 5px solid #3b82f6;
+        }
+
+        .info-panel p {
+            font-size: 0.85rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .qr-container {
+            background: white;
+            border-radius: 32px;
+            padding: 28px 20px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            margin: 20px 0;
+            border: 1px solid #eef2ff;
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+        }
+
+        #qrcode img, #qrcode canvas {
+            border-radius: 24px;
+            box-shadow: 0 12px 24px -12px rgba(0,0,0,0.3);
+            background: white;
+            padding: 10px;
+        }
+
+        .qr-label {
+            margin-top: 16px;
+            font-weight: 600;
+            color: #0f172a;
+            font-size: 0.8rem;
+        }
+
+        .access-status {
+            background: #f1f5f9;
+            border-radius: 28px;
+            padding: 1rem 1.2rem;
+            margin-top: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .status-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer-countdown {
+            font-family: monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: #0f172a;
+            color: #a5f3fc;
+            padding: 8px 14px;
+            border-radius: 50px;
+            display: inline-block;
+            margin: 8px 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary {
+            background: #0f172a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e293b;
+            transform: scale(0.97);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #3b82f6;
+            color: #1e40af;
+        }
+
+        .btn-outline:hover {
+            background: #eff6ff;
+        }
+
+        .webpage-preview {
+            background: #ffffff;
+            border-radius: 28px;
+            margin-top: 24px;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            transition: 0.2s;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .access-granted {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .access-blocked {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .hidden-content {
+            display: none;
+        }
+
+        .webpage-content {
+            min-height: 120px;
+            background: #f9fafb;
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 10px;
+        }
+
+        footer {
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #6c757d;
+            background: #f9fafb;
+            border-top: 1px solid #eef2ff;
+        }
+
+        @media (max-width: 540px) {
+            .content {
+                padding: 1.3rem;
+            }
+            .header h1 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
 </head>
-
 <body>
+<div class="glass-card">
+    <div class="header">
+        <h1>🔐 QR • 24H Limit</h1>
+        <p>Single access within 24 hours per device</p>
+        <div class="badge-time">⏳ Once per day • Cookie-based restriction</div>
+    </div>
+    <div class="content">
+        <div class="info-panel">
+            <p>📱 <strong>How it works:</strong> Scan the QR code → Opens the Staff Access Page. The page can be accessed only <strong>once every 24 hours</strong> (per device). After your first view, a cooldown timer prevents re-entry until 24h have passed.</p>
+        </div>
 
-<div class="box">
-  <h2>Enter Staff ID</h2>
+        <!-- QR Code Display Area -->
+        <div class="qr-container">
+            <div id="qrcode"></div>
+            <div class="qr-label">⬆️ Scan to open the Staff Access Page</div>
+            <div style="font-size: 0.7rem; margin-top: 8px; color: #475569;">(Includes access control logic)</div>
+        </div>
 
-  <input type="text" id="studentId" placeholder="Enter 5-digit ID" maxlength="6">
+        <!-- Current Device Access Status -->
+        <div class="access-status" id="accessStatusBox">
+            <div class="status-title">
+                <span>🖥️</span> <span>This device access status</span>
+            </div>
+            <div id="statusMessage">Checking access permissions...</div>
+            <div id="timerDisplay" class="timer-countdown" style="display: none;">--:--:--</div>
+            <div class="button-group">
+                <button id="tryAccessBtn" class="btn btn-primary">🌐 Access Staff Page</button>
+                <button id="resetDemoBtn" class="btn btn-outline">🔄 Reset Demo (Clear restriction)</button>
+            </div>
+            <p style="font-size: 0.7rem; margin-top: 12px; color: #4b5563;">*Reset button simulates clearing device storage (for testing only). Real users must wait 24h.</p>
+        </div>
 
-  <button onclick="submitData()">Submit</button>
-
-  <p class="error" id="errorMsg"></p>
+        <!-- The actual webpage preview / content (protected) -->
+        <div class="webpage-preview" id="webpagePreview">
+            <div class="preview-header">
+                <span><strong>📄 StaffAccess Portal</strong></span>
+                <span id="accessBadge" class="access-granted">🔓 Accessible</span>
+            </div>
+            <div id="protectedContentArea" class="webpage-content">
+                <!-- Dynamic content loads here -->
+                <div style="text-align: center; color: #6c757d;">⏳ Ready — click "Access Staff Page" to unlock.</div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        ⚡ QR code includes URL with 24h cooldown | Each device/browser tracks last access via localStorage + timestamp
+    </footer>
 </div>
 
 <script>
-function submitData() {
-  let id = document.getElementById("studentId").value.trim();
-  let errorMsg = document.getElementById("errorMsg");
-
-  // Validate 5-digit ID
-  let pattern = /^[0-9]{6}$/;
-
-  if (!pattern.test(id)) {
-    errorMsg.innerText = "Enter a valid 5-digit ID";
-    return;
-  }
-
-  errorMsg.innerText = "";
-
-  // Send to Formspree
-  fetch("https://formspree.io/f/mojrrnoq", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      student_id: id,
-      submitted_at: new Date().toLocaleString()
-    })
-  })
-  .then(response => {
-    if (response.ok) {
-      // Redirect after successful submission
-     window.location.href = "https://AmineJalloh-io.github.io/staff_form/?staff_id=" + id;
-    } else {
-      errorMsg.innerText = "Submission failed. Try again.";
+    // --- Configuration ---
+    // The actual webpage URL that will be opened after access is granted.
+    const TARGET_URL = "https://aminejalloh-io.github.io/Staff_qr_code/";
+    
+    const COOLDOWN_HOURS = 24;
+    const COOLDOWN_MS = COOLDOWN_HOURS * 60 * 60 * 1000; // 24 hours in milliseconds
+    
+    // Storage key
+    const STORAGE_KEY = "qr_webpage_last_access";
+    
+    // DOM Elements
+    const statusMsgDiv = document.getElementById("statusMessage");
+    const timerDisplaySpan = document.getElementById("timerDisplay");
+    const tryAccessBtn = document.getElementById("tryAccessBtn");
+    const resetBtn = document.getElementById("resetDemoBtn");
+    const accessBadge = document.getElementById("accessBadge");
+    const protectedContentArea = document.getElementById("protectedContentArea");
+    
+    // ---- Helper: Get last access timestamp ----
+    function getLastAccessTimestamp() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return null;
+        const parsed = parseInt(stored, 10);
+        return isNaN(parsed) ? null : parsed;
     }
-  })
-  .catch(error => {
-    errorMsg.innerText = "Network error.";
-  });
-}
+    
+    // ---- Check if access is currently allowed (returns boolean + remaining ms) ----
+    function checkAccessStatus() {
+        const lastAccess = getLastAccessTimestamp();
+        if (!lastAccess) {
+            return { allowed: true, remainingMs: 0, lastAccessTime: null };
+        }
+        const now = Date.now();
+        const elapsed = now - lastAccess;
+        if (elapsed >= COOLDOWN_MS) {
+            // Cooldown expired, access allowed again (but we will update when they actually access)
+            return { allowed: true, remainingMs: 0, lastAccessTime: lastAccess };
+        } else {
+            const remainingMs = COOLDOWN_MS - elapsed;
+            return { allowed: false, remainingMs: remainingMs, lastAccessTime: lastAccess };
+        }
+    }
+    
+    // Format milliseconds to HH:MM:SS
+    function formatTimeRemaining(ms) {
+        if (ms <= 0) return "00:00:00";
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    // Update UI based on current access rules (without consuming access)
+    function updateAccessUI() {
+        const status = checkAccessStatus();
+        if (status.allowed) {
+            statusMsgDiv.innerHTML = `✅ <strong>Access granted</strong> — You can access the StaffPage now (last access was ${status.lastAccessTime ? `more than ${COOLDOWN_HOURS} hours ago` : 'never'}). Click the button below.`;
+            timerDisplaySpan.style.display = "none";
+            accessBadge.className = "access-granted";
+            accessBadge.innerHTML = "🔓 Available Now";
+        } else {
+            const remainingTimeStr = formatTimeRemaining(status.remainingMs);
+            statusMsgDiv.innerHTML = `⛔ <strong>Access blocked</strong> — You already accessed the StaffPage within the last ${COOLDOWN_HOURS} hours. Please wait until cooldown ends.`;
+            timerDisplaySpan.style.display = "inline-block";
+            timerDisplaySpan.innerText = `⏱️ Cooldown: ${remainingTimeStr}`;
+            accessBadge.className = "access-blocked";
+            accessBadge.innerHTML = "🔒 Locked (24h cooldown)";
+        }
+        return status;
+    }
+    
+    // Function to grant access & save timestamp, then open the target webpage in a new tab
+    function grantAccessAndNavigate() {
+        const now = Date.now();
+        localStorage.setItem(STORAGE_KEY, now.toString());
+        // Update UI to reflect new lock
+        updateAccessUI();
+        
+        // Open the target webpage in a new tab
+        window.open(TARGET_URL, '_blank');
+        
+        // Update the preview area to show that access has been granted
+        protectedContentArea.innerHTML = `
+            <div style="background: linear-gradient(145deg, #f0f9ff, #e6f7ec); border-radius: 24px; padding: 20px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                    <span style="font-size: 2rem;">🎉</span>
+                    <h3 style="color: #0f3b2c;">Access Granted!</h3>
+                </div>
+                <p style="margin-bottom: 12px; line-height: 1.5;">✨ The StaffAccess Page has been opened in a new tab. This page will be <strong>blocked for the next 24 hours</strong> on this device.</p>
+                <hr style="margin: 16px 0; border-color: #cbd5e1;">
+                <div style="background: white; border-radius: 20px; padding: 18px;">
+                    <h4>📋 Access Details</h4>
+                    <p>You can access the StaffPage again after the cooldown period ends.</p>
+                    <p style="margin-top: 12px; font-size: 0.85rem;">⏱️ Next access available after ${new Date(now + COOLDOWN_MS).toLocaleString()}</p>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Show content when access is allowed but not consumed? We handle manually
+    // When user clicks "Access StaffPage", we check if allowed; if allowed we grant & navigate; if not, we show blocked message.
+    function attemptAccess() {
+        const status = checkAccessStatus();
+        if (status.allowed) {
+            // Grant access, record new timestamp and open the target webpage
+            grantAccessAndNavigate();
+            // update the UI again
+            updateAccessUI();
+            // Optional toast
+            showFloatingMessage("✅ Access successful! StaffPage opened in new tab. Next access in 24h.", "success");
+        } else {
+            // Access denied, display remaining time and show error inside content preview.
+            const remainingStr = formatTimeRemaining(status.remainingMs);
+            protectedContentArea.innerHTML = `
+                <div style="text-align: center; padding: 28px 16px; background: #fff5f5; border-radius: 24px;">
+                    <span style="font-size: 3rem;">⏳🔒</span>
+                    <h3 style="color: #b91c1c; margin: 12px 0;">Access Denied</h3>
+                    <p>You have already accessed the StaffPage within the last 24 hours.</p>
+                    <p style="font-family: monospace; background: #1e293b; color: #facc15; padding: 8px; border-radius: 40px; margin-top: 12px;">Cooldown remaining: ${remainingStr}</p>
+                    <p style="margin-top: 16px; font-size: 0.8rem;">Please come back after the cooldown period expires to access the page again.</p>
+                </div>
+            `;
+            accessBadge.className = "access-blocked";
+            accessBadge.innerHTML = "🔒 Locked";
+            showFloatingMessage(`⛔ Access blocked. Please wait ${remainingStr} before trying again.`, "error");
+        }
+    }
+    
+    // Floating temporary message (simple)
+    function showFloatingMessage(msg, type) {
+        let toast = document.createElement('div');
+        toast.innerText = msg;
+        toast.style.position = 'fixed';
+        toast.style.bottom = '20px';
+        toast.style.left = '50%';
+        toast.style.transform = 'translateX(-50%)';
+        toast.style.backgroundColor = type === 'success' ? '#15803d' : '#b91c1c';
+        toast.style.color = 'white';
+        toast.style.padding = '10px 20px';
+        toast.style.borderRadius = '60px';
+        toast.style.fontSize = '0.85rem';
+        toast.style.fontWeight = '500';
+        toast.style.zIndex = '9999';
+        toast.style.boxShadow = '0 8px 18px rgba(0,0,0,0.2)';
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 2800);
+    }
+    
+    // Display default content if user hasn't accessed yet (info)
+    function displayDefaultUnlockedPreview() {
+        const status = checkAccessStatus();
+        if (!status.allowed && status.lastAccessTime) {
+            // Already accessed and locked
+            protectedContentArea.innerHTML = `
+                <div style="text-align: center; padding: 30px 16px; background: #f1f5f9; border-radius: 24px;">
+                    <span>🔒 Content is locked due to 24h cooldown.</span>
+                    <p style="margin-top: 8px;">Click 'Access StaffPage' to see remaining time.</p>
+                </div>
+            `;
+        } else if (status.allowed) {
+            protectedContentArea.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #2d6a4f;">
+                    🌟 <strong>Ready to unlock!</strong> Press the button above to access the StaffPage (once per 24h). After accessing, you'll have to wait 24 hours.
+                </div>
+            `;
+        } else {
+            protectedContentArea.innerHTML = `<div style="text-align: center;">⚠️ Status unknown. Refresh.</div>`;
+        }
+    }
+    
+    // Function to force UI refresh and real-time timer countdown update every second
+    let countdownInterval = null;
+    function startCountdownUpdater() {
+        if (countdownInterval) clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
+            const status = checkAccessStatus();
+            if (!status.allowed && status.remainingMs > 0) {
+                const remainStr = formatTimeRemaining(status.remainingMs);
+                if (timerDisplaySpan) {
+                    timerDisplaySpan.innerText = `⏱️ Cooldown: ${remainStr}`;
+                }
+                // Also update status message minor
+                if (statusMsgDiv) {
+                    statusMsgDiv.innerHTML = `⛔ <strong>Access blocked</strong> — You already accessed the StaffPage within the last ${COOLDOWN_HOURS} hours. Please wait until cooldown ends.`;
+                }
+                accessBadge.className = "access-blocked";
+                accessBadge.innerHTML = "🔒 Locked (24h cooldown)";
+            } else if (status.allowed) {
+                // When timer becomes allowed refresh ui
+                if (timerDisplaySpan) timerDisplaySpan.style.display = "none";
+                if (statusMsgDiv) {
+                    statusMsgDiv.innerHTML = `✅ <strong>Access granted</strong> — You can access the StaffPage now. Click the button to access the page (will lock again for 24h after viewing).`;
+                }
+                accessBadge.className = "access-granted";
+                accessBadge.innerHTML = "🔓 Available Now";
+                // optionally if content area shows locked we reset preview
+                const currentContentEmpty = protectedContentArea.innerText.includes("locked") || protectedContentArea.innerText.includes("Access Denied");
+                if (currentContentEmpty) {
+                    displayDefaultUnlockedPreview();
+                }
+                // Stop timer display
+                if (timerDisplaySpan) timerDisplaySpan.style.display = "none";
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+        }, 1000);
+    }
+    
+    // Reset for demo: clear localStorage and refresh UI (also reset content preview)
+    function resetForDemo() {
+        localStorage.removeItem(STORAGE_KEY);
+        // Reset UI display
+        updateAccessUI();
+        displayDefaultUnlockedPreview();
+        // restart countdown updater (if any)
+        if (countdownInterval) clearInterval(countdownInterval);
+        startCountdownUpdater();
+        showFloatingMessage("🔄 Demo reset: Access restriction cleared. You can now access the StaffPage again.", "success");
+        // also ensure that content area shows fresh state
+        protectedContentArea.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: #2d6a4f;">
+                🌟 <strong>Ready to unlock!</strong> Press the button above to access the StaffPage (once per 24h). After accessing, you'll have to wait 24 hours.
+            </div>
+        `;
+    }
+    
+    // ---- Generate QR code pointing to the specific URL (TARGET_URL) ----
+    function generateQRWithTargetURL() {
+        const qrContainer = document.getElementById("qrcode");
+        if (!qrContainer) return;
+        qrContainer.innerHTML = ""; // clear old
+        try {
+            new QRCode(qrContainer, {
+                text: TARGET_URL,
+                width: 210,
+                height: 210,
+                colorDark: "#0f172a",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        } catch (err) {
+            qrContainer.innerHTML = `<div style="color:red;">⚠️ QR generation error</div>`;
+        }
+        // additional small note
+        const qrLabelSpan = document.querySelector('.qr-label');
+        if (qrLabelSpan) {
+            qrLabelSpan.innerHTML = `⬆️ Scan to open the StaffAccess Page<br><span style="font-size:0.6rem;">Access limited to once/24h per device</span>`;
+        }
+    }
+    
+    // Event listeners + initial load
+    window.addEventListener('DOMContentLoaded', () => {
+        generateQRWithTargetURL();
+        updateAccessUI();
+        displayDefaultUnlockedPreview();
+        startCountdownUpdater();
+        
+        // Attach button events
+        if (tryAccessBtn) {
+            tryAccessBtn.addEventListener('click', attemptAccess);
+        }
+        if (resetBtn) {
+            resetBtn.addEventListener('click', resetForDemo);
+        }
+    });
+    
+    // This page serves as a gateway. The QR code now points directly to the StaffAccess Page,
+    // and the access control is applied to that link.
 </script>
-
 </body>
 </html>
+
+
+
+
+
+
+
