@@ -126,7 +126,7 @@ function submitData() {
       // Record successful submission timestamp
       setLastSubmitTime(id);
       // Redirect after successful submission
-      window.location.href = "https://AmineJalloh-io.github.io/Lectturer_daily_presence/?Staff_id=" + id;
+      window.location.href = "https://aminejalloh-io.github.io/staff_form/?Staff_id=" + id;
     } else {
       errorMsg.innerText = `Submission failed (status ${response.status}). Try again.`;
       errorMsg.style.color = "red";
