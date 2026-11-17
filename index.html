@@ -1,468 +1,2611 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Identifyer</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<title>AfriPay | Admin Dashboard — Real-Time v2.9.1</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='%230a2b3c'/><text x='50' y='62' text-anchor='middle' font-family='Arial Black' font-size='40' font-weight='900' fill='%23FFD966'>AP</text></svg>">
+
+<script>
+window.__AFRIPAY_VERSION = '2.9.1';
+console.log('%c🏷️ Admin Dashboard v2.9.1 — direct chat + broadcast (freeze-fixed)',
+    'background:#0f2b3d;color:#FFD966;padding:4px 10px;border-radius:4px;font-weight:bold;font-size:13px');
+</script>
+
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: linear-gradient(145deg, #eef2f7 0%, #d9e2ec 100%); min-height: 100vh; padding: 0.8rem; color: #1e3b4a; }
+
+    .dashboard { max-width: 1400px; margin: 0 auto; }
+    .topbar {
+        background: linear-gradient(135deg, #0a2b3c 0%, #1c4e6c 100%);
+        border-radius: 1.2rem; padding: 0.8rem 1.2rem; color: white;
+        display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+        gap: 0.6rem; box-shadow: 0 10px 30px -8px rgba(0,0,0,0.3); margin-bottom: 1rem;
     }
 
-    body {
-      background: linear-gradient(145deg, #e9f0fc 0%, #d9e2f0 100%);
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
+    .topbar-left { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; min-width: 0; }
+    .brand { display: flex; align-items: center; gap: 0.7rem; }
+    .brand-logo { width: 42px; height: 42px; border-radius: 50%; background: #fff; padding: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 0 2px rgba(255,215,0,0.45); }
+    .brand-text { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(135deg, #FFF, #FFD966, #6bc6ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .brand-sub { font-size: 0.7rem; opacity: 0.75; font-weight: 500; }
+    .brand-version { font-size: 0.6rem; background: rgba(255,215,0,0.25); color: #FFD966; padding: 1px 8px; border-radius: 20px; font-weight: 800; margin-left: 6px; }
+
+    .approve-btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: linear-gradient(135deg, #2c7da0 0%, #1c6e8f 100%);
+        color: #fff; border: none; border-radius: 30px;
+        padding: 0.5rem 1.05rem; font-size: 0.8rem; font-weight: 800;
+        letter-spacing: 0.2px; cursor: pointer; white-space: nowrap;
+        box-shadow: 0 4px 14px -4px rgba(44,125,160,0.85);
+        transition: background .35s ease, box-shadow .35s ease, transform .15s ease;
+    }
+    .approve-btn:hover { transform: translateY(-1px); }
+    .approve-btn.has-activity {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        animation: approvePulse 1.6s infinite;
+    }
+    @keyframes approvePulse {
+        0%   { box-shadow: 0 4px 14px -4px rgba(231,76,60,0.9), 0 0 0 0 rgba(231,76,60,0.55); }
+        70%  { box-shadow: 0 4px 14px -4px rgba(231,76,60,0.9), 0 0 0 12px rgba(231,76,60,0); }
+        100% { box-shadow: 0 4px 14px -4px rgba(231,76,60,0.9), 0 0 0 0 rgba(231,76,60,0); }
+    }
+    .approve-count {
+        background: rgba(255,255,255,0.28);
+        border-radius: 30px; padding: 1px 8px;
+        font-size: 0.7rem; font-weight: 800; min-width: 22px; text-align: center;
     }
 
-    /* modern glass card */
-    .card {
-      max-width: 560px;
-      width: 100%;
-      background: rgba(255, 255, 255, 0.96);
-      backdrop-filter: blur(2px);
-      border-radius: 2.5rem;
-      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.05);
-      padding: 2rem 2rem 2.2rem;
-      transition: transform 0.2s ease;
-      border: 1px solid rgba(255,255,255,0.5);
+    .connection-status { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.12); padding: 4px 12px; border-radius: 30px; font-size: 0.72rem; font-weight: 600; }
+    .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: #f39c12; animation: pulse 1.5s infinite; }
+    .conn-dot.online { background: #2ecc71; }
+    .conn-dot.offline { background: #e74c3c; animation: none; }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.85); } }
+    .clock { font-size: 0.78rem; font-weight: 600; background: rgba(0,0,0,0.2); padding: 4px 12px; border-radius: 30px; }
+    .last-updated { font-size: 0.65rem; opacity: 0.7; padding: 2px 8px; }
+
+    .boot-error {
+        display: none; background: linear-gradient(135deg, #fdeaea, #fbd7d7);
+        color: #a93226; border: 1.5px solid #f5b7b1; border-radius: 0.9rem;
+        padding: 0.75rem 1rem; font-size: 0.8rem; font-weight: 600;
+        margin-bottom: 1rem; line-height: 1.55; word-break: break-word;
+    }
+    .boot-error .be-title { font-weight: 800; margin-bottom: 2px; }
+    .boot-error .be-detail { font-weight: 500; font-size: 0.72rem; color: #922b21; opacity: 0.9; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7rem; margin-bottom: 1rem; }
+    .kpi-card { background: white; border-radius: 1rem; padding: 0.9rem 1rem; box-shadow: 0 6px 18px -6px rgba(0,0,0,0.12); border-left: 4px solid #2c7da0; position: relative; overflow: hidden; }
+    .kpi-card::after { content: ''; position: absolute; top: -20px; right: -20px; width: 70px; height: 70px; border-radius: 50%; background: rgba(44,125,160,0.06); }
+    .kpi-card.green { border-left-color: #27ae60; }
+    .kpi-card.orange { border-left-color: #f39c12; }
+    .kpi-card.purple { border-left-color: #8e44ad; }
+    .kpi-card.red { border-left-color: #e74c3c; }
+    .kpi-card.teal { border-left-color: #16a085; }
+    .kpi-card.dark { border-left-color: #34495e; }
+    .kpi-label { font-size: 0.68rem; color: #7f8c8d; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+    .kpi-value { font-size: 1.8rem; font-weight: 800; color: #0f2b3d; line-height: 1.1; margin-top: 2px; }
+    .kpi-sub { font-size: 0.68rem; color: #95a5a6; margin-top: 2px; }
+
+    .tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; background: white; border-radius: 1rem; padding: 0.4rem; box-shadow: 0 6px 18px -8px rgba(0,0,0,0.12); margin-bottom: 1rem; }
+    .tab-btn { flex: 1; min-width: 96px; background: transparent; border: none; padding: 0.6rem 0.9rem; border-radius: 0.7rem; font-weight: 700; font-size: 0.78rem; color: #1c6e8f; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .tab-btn:hover { background: #f0f6fb; }
+    .tab-btn.active { background: linear-gradient(135deg, #0a2b3c, #1c4e6c); color: white; box-shadow: 0 4px 12px -2px rgba(10,43,60,0.4); }
+    .tab-badge { background: #f39c12; color: white; font-size: 0.62rem; font-weight: 800; padding: 1px 7px; border-radius: 30px; min-width: 20px; text-align: center; }
+    .tab-badge.danger { background: #e74c3c; }
+
+    .panel { background: white; border-radius: 1rem; padding: 1rem 1.1rem; box-shadow: 0 6px 18px -8px rgba(0,0,0,0.12); display: none; }
+    .panel.active { display: block; }
+    .panel-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem; padding-bottom: 0.7rem; border-bottom: 2px solid #eef2f7; margin-bottom: 0.8rem; }
+    .panel-title { font-size: 1.1rem; font-weight: 800; color: #0f2b3d; display: flex; align-items: center; gap: 0.5rem; }
+    .panel-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+    .btn-mini { background: #eef2f7; border: none; color: #1c6e8f; font-weight: 700; font-size: 0.72rem; padding: 5px 12px; border-radius: 30px; cursor: pointer; height: 30px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .btn-mini:hover { background: #dce8f0; }
+    .btn-mini:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-mini.green { background: #27ae60; color: white; }
+    .btn-mini.blue { background: #2c7da0; color: white; }
+    .btn-mini.red { background: #e74c3c; color: white; }
+    .btn-mini.orange { background: #f39c12; color: white; }
+    .btn-mini.purple { background: #8e44ad; color: white; }
+    .btn-mini.dark { background: #34495e; color: white; }
+
+    .search-input, .filter-select { flex: 1; min-width: 160px; padding: 6px 14px; border-radius: 30px; border: 1.5px solid #e0e8f0; font-size: 0.82rem; height: 34px; outline: none; background: white; }
+    .filter-select { flex: 0; min-width: 130px; cursor: pointer; font-weight: 600; color: #1e3b4a; }
+    .search-input:focus, .filter-select:focus { border-color: #f4a261; box-shadow: 0 0 0 3px rgba(244,162,97,0.15); }
+
+    .list-wrap { max-height: 65vh; overflow-y: auto; border-radius: 0.6rem; border: 1px solid #eef2f7; }
+    .list-row { padding: 0.7rem 0.9rem; border-bottom: 1px solid #f0f4f8; display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; transition: background 0.15s; }
+    .list-row:hover { background: #f8fbfd; }
+    .list-row:last-child { border-bottom: none; }
+    .list-row.suspended { background: #fff8f8; opacity: 0.75; }
+    .list-row.suspended:hover { background: #fdf1f1; opacity: 0.9; }
+    .list-row.suspended .row-title { color: #a93226; }
+    .list-row.deleting { opacity: 0.35; pointer-events: none; background: #fdeaea; }
+
+    .row-avatar { width: 38px; height: 38px; border-radius: 50%; background: #f0f6fb; color: #1c6e8f; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; flex-shrink: 0; overflow: hidden; }
+    .row-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .row-avatar.susp { background: #fdeaea; color: #c0392b; }
+    .row-main { flex: 1; min-width: 160px; }
+    .row-title { font-weight: 700; font-size: 0.85rem; color: #0f2b3d; }
+    .row-sub { font-size: 0.72rem; color: #7f8c8d; margin-top: 2px; }
+    .row-meta { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+    .badge { font-size: 0.62rem; font-weight: 800; padding: 3px 9px; border-radius: 30px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .badge.blue { background: #e8f0f8; color: #1c6e8f; }
+    .badge.green { background: #e8f8f0; color: #27ae60; }
+    .badge.orange { background: #fef4e6; color: #c97e2a; }
+    .badge.red { background: #fdeaea; color: #c0392b; }
+    .badge.purple { background: #f3eaf8; color: #8e44ad; }
+    .badge.gray { background: #eef2f7; color: #7f8c8d; }
+    .badge.dark { background: #e4e9ee; color: #34495e; }
+    .row-amount { font-weight: 800; font-size: 0.95rem; color: #0f2b3d; white-space: nowrap; }
+    .row-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: #95a5a6; font-size: 0.85rem; }
+    .empty-state .em-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+    .modal { display: none; position: fixed; inset: 0; background: rgba(10,43,60,0.6); backdrop-filter: blur(3px); align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal.open { display: flex; }
+    .modal-card { background: white; border-radius: 1rem; padding: 1.2rem; max-width: 560px; width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.35); position: relative; }
+    .modal-card h3 { font-size: 1.1rem; color: #0f2b3d; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
+    .modal-close { position: absolute; top: 12px; right: 14px; background: #eef2f7; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; color: #1c6e8f; }
+    .modal-close:hover { background: #dce8f0; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .detail-item { background: #f8fafc; border-radius: 0.6rem; padding: 0.6rem 0.8rem; }
+    .detail-item .di-label { font-size: 0.65rem; color: #7f8c8d; text-transform: uppercase; font-weight: 700; }
+    .detail-item .di-value { font-size: 0.85rem; color: #0f2b3d; font-weight: 700; word-break: break-word; margin-top: 2px; }
+    .detail-item.full { grid-column: span 2; }
+    .detail-item.danger { background: #fdeaea; }
+    .detail-item.danger .di-label { color: #c0392b; }
+    .detail-item.danger .di-value { color: #c0392b; }
+    .detail-item.info { background: #eef7ff; }
+    .detail-item.info .di-label { color: #1c6e8f; }
+    .detail-item.info .di-value { color: #1c6e8f; }
+
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1e2f3c; color: white; padding: 10px 22px; border-radius: 40px; font-size: 0.85rem; font-weight: 600; z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.3s; box-shadow: 0 8px 20px rgba(0,0,0,0.3); max-width: 88%; text-align: center; }
+    .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: linear-gradient(135deg, #27ae60, #229954); }
+    .toast.error { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+    .toast.info { background: linear-gradient(135deg, #2c7da0, #1c6e8f); }
+    .toast.warn { background: linear-gradient(135deg, #f39c12, #d68910); }
+
+    .chat-live { background: #f8fafc; border-radius: 0.8rem; padding: 0.8rem; max-height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 0.4rem; }
+    .chat-bubble { background: white; border-radius: 0.7rem; padding: 0.5rem 0.8rem; max-width: 75%; font-size: 0.8rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); align-self: flex-start; border-left: 3px solid #2c7da0; position: relative; }
+    .chat-bubble .cb-name { font-weight: 800; color: #1c6e8f; font-size: 0.72rem; }
+    .chat-bubble .cb-time { font-size: 0.62rem; color: #95a5a6; margin-left: 6px; }
+    .chat-bubble .cb-msg { margin-top: 3px; color: #1e3b4a; word-break: break-word; }
+    .chat-bubble .chat-del-btn { position: absolute; top: 4px; right: 4px; background: #fdeaea; border: none; color: #c0392b; border-radius: 50%; width: 22px; height: 22px; font-size: 0.7rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .chat-bubble .chat-del-btn:hover { background: #e74c3c; color: white; }
+
+    .status-select { padding: 4px 10px; border-radius: 20px; border: 1px solid #d0dce8; font-size: 0.7rem; font-weight: 700; background: white; cursor: pointer; color: #1e3b4a; }
+    .status-select.pending { border-color: #e74c3c; color: #c0392b; }
+    .status-select.reviewing { border-color: #f39c12; color: #c97e2a; }
+    .status-select.resolved { border-color: #27ae60; color: #1e8449; }
+
+    .sub-panel-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem; padding: 0.8rem 0 0.6rem; margin-top: 1rem; border-top: 2px dashed #eef2f7; }
+    .pending-info { font-size: 0.72rem; color: #7f8c8d; font-weight: 600; background: #f8fafc; padding: 6px 14px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; }
+
+    .reason-grid { display: grid; grid-template-columns: 1fr; gap: 0.45rem; margin: 0.5rem 0 0.7rem; }
+    .reason-option { display: flex; align-items: flex-start; gap: 0.7rem; padding: 0.65rem 0.85rem; border-radius: 0.7rem; border: 1.5px solid #e0e8f0; background: #f8fafc; cursor: pointer; transition: all 0.15s; }
+    .reason-option:hover { background: #eef7ff; border-color: #a8cfe0; }
+    .reason-option.selected { background: #eef7ff; border-color: #2c7da0; box-shadow: 0 0 0 3px rgba(44,125,160,0.12); }
+    .reason-option input { display: none; }
+    .reason-opt-icon { font-size: 1.3rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+    .reason-opt-body { flex: 1; }
+    .reason-opt-title { font-weight: 800; font-size: 0.85rem; color: #0f2b3d; }
+    .reason-opt-desc { font-size: 0.7rem; color: #7f8c8d; margin-top: 1px; }
+
+    .reason-note { width: 100%; min-height: 70px; padding: 0.6rem 0.8rem; border-radius: 0.7rem; border: 1.5px solid #e0e8f0; font-size: 0.82rem; font-family: inherit; resize: vertical; outline: none; }
+    .reason-note:focus { border-color: #f4a261; box-shadow: 0 0 0 3px rgba(244,162,97,0.15); }
+    .modal-footnote { font-size: 0.7rem; color: #95a5a6; margin-top: 0.4rem; }
+
+    .row-actions button.busy { opacity: 0.55; pointer-events: none; }
+
+    .susp-history-item { background: #fff8f8; border-left: 3px solid #e74c3c; padding: 0.5rem 0.7rem; border-radius: 0.4rem; margin-bottom: 0.4rem; font-size: 0.75rem; }
+    .susp-history-item .sh-meta { font-size: 0.65rem; color: #95a5a6; margin-top: 2px; }
+
+    .diag-block { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.78rem; line-height: 1.65; color: #0f2b3d; }
+    .diag-block .ok { color: #1e8449; }
+    .diag-block .fail { color: #c0392b; }
+    .diag-block .slow { color: #c97e2a; }
+    .diag-block .rls { color: #8e44ad; }
+
+    .skeleton { background: linear-gradient(90deg, #f0f4f8 25%, #e4ecf2 50%, #f0f4f8 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; height: 14px; margin: 6px 0; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .skeleton-row { padding: 0.7rem 0.9rem; border-bottom: 1px solid #f0f4f8; }
+    .skeleton-row .skeleton.w40 { width: 40%; }
+    .skeleton-row .skeleton.w60 { width: 60%; }
+    .skeleton-row .skeleton.w25 { width: 25%; }
+
+    .load-status { font-size: 0.7rem; color: #7f8c8d; padding: 4px 10px; background: #f8fafc; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; }
+    .load-status .mini-dot { width: 6px; height: 6px; border-radius: 50%; background: #f39c12; animation: pulse 1.5s infinite; }
+    .load-status.done .mini-dot { background: #2ecc71; animation: none; }
+    .load-status.failed .mini-dot { background: #e74c3c; animation: none; }
+
+    /* ====== EDIT BIZ FORM ====== */
+    .edit-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .edit-form-grid .full { grid-column: span 2; }
+    .edit-field { display: flex; flex-direction: column; gap: 3px; }
+    .edit-field label { font-size: 0.68rem; font-weight: 800; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.3px; }
+    .edit-field input, .edit-field select, .edit-field textarea {
+        padding: 0.5rem 0.7rem; border-radius: 0.6rem; border: 1.5px solid #e0e8f0;
+        font-size: 0.85rem; outline: none; background: white; font-family: inherit;
+        transition: border-color .15s, box-shadow .15s;
+    }
+    .edit-field input:focus, .edit-field select:focus, .edit-field textarea:focus { border-color: #f4a261; box-shadow: 0 0 0 3px rgba(244,162,97,0.15); }
+    .edit-field input[type="number"] { font-variant-numeric: tabular-nums; }
+
+    .product-editor { margin-top: 0.7rem; padding: 0.7rem; background: #f8fafc; border-radius: 0.7rem; border: 1.5px dashed #d0dce8; }
+    .product-editor .pe-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .product-editor .pe-head span { font-size: 0.72rem; font-weight: 800; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.3px; }
+    .pe-row { background: white; border-radius: 0.6rem; padding: 0.5rem; margin-bottom: 0.4rem; display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 0.4rem; align-items: center; border: 1px solid #eef2f7; }
+    .pe-row input, .pe-row select { padding: 0.4rem 0.55rem; border-radius: 0.45rem; border: 1px solid #d8e3ea; font-size: 0.78rem; outline: none; font-family: inherit; width: 100%; }
+    .pe-row .pe-del { background: #fdeaea; border: none; color: #c0392b; border-radius: 0.45rem; width: 28px; height: 28px; cursor: pointer; font-weight: 800; }
+    .pe-row .pe-del:hover { background: #e74c3c; color: white; }
+    .pe-empty { text-align: center; color: #95a5a6; font-size: 0.78rem; padding: 0.6rem; }
+
+    .edit-biz-actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; flex-wrap: wrap; }
+
+    .sync-indicator {
+        display: inline-flex; align-items: center; gap: 4px;
+        font-size: 0.66rem; font-weight: 800;
+        padding: 3px 10px; border-radius: 30px;
+        background: #eef2f7; color: #7f8c8d;
+        transition: all .25s;
+    }
+    .sync-indicator.ok { background: #e8f8f0; color: #27ae60; }
+    .sync-indicator.fail { background: #fdeaea; color: #c0392b; }
+
+    @media (max-width: 640px) {
+        .kpi-value { font-size: 1.4rem; }
+        .tab-btn { min-width: 80px; font-size: 0.68rem; padding: 0.5rem 0.4rem; }
+        .detail-grid { grid-template-columns: 1fr; }
+        .detail-item.full { grid-column: span 1; }
+        .edit-form-grid { grid-template-columns: 1fr; }
+        .edit-form-grid .full { grid-column: span 1; }
+        .pe-row { grid-template-columns: 1fr 1fr; }
+        .pe-row .pe-del { grid-column: 2; justify-self: end; }
+        .list-row { padding: 0.6rem 0.6rem; }
+        .row-actions { width: 100%; }
     }
 
-    .card:hover {
-      transform: translateY(-3px);
-    }
-
-    h1 {
-      font-size: 1.9rem;
-      font-weight: 600;
-      background: linear-gradient(135deg, #1E2F5E, #2c3e6d);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-      letter-spacing: -0.3px;
-      margin-bottom: 0.5rem;
-    }
-
-    .subhead {
-      color: #4a5b7a;
-      font-weight: 400;
-      font-size: 0.95rem;
-      border-left: 3px solid #2c7da0;
-      padding-left: 0.75rem;
-      margin-bottom: 1.8rem;
-      margin-top: 0.25rem;
-    }
-
-    .input-group {
-      margin-bottom: 1.5rem;
-    }
-
-    label {
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: #1e2f4b;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 0.6rem;
-    }
-
-    .badge {
-      background: #eef2ff;
-      color: #1f4a6e;
-      font-size: 0.7rem;
-      font-weight: 500;
-      padding: 0.2rem 0.6rem;
-      border-radius: 40px;
-      letter-spacing: 0.3px;
-    }
-
-    .input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    input {
-      width: 100%;
-      padding: 1rem 1rem;
-      font-size: 1.2rem;
-      font-weight: 500;
-      font-family: 'JetBrains Mono', 'Fira Mono', monospace;
-      background: #ffffff;
-      border: 2px solid #e2e8f0;
-      border-radius: 1.4rem;
-      transition: all 0.2s;
-      outline: none;
-      color: #0a2a44;
-      letter-spacing: 1px;
-      text-align: center;
-    }
-
-    input:focus {
-      border-color: #2c7da0;
-      box-shadow: 0 0 0 3px rgba(44,125,160,0.2);
-    }
-
-    input.error-input {
-      border-color: #e53e3e;
-      background-color: #fff5f5;
-    }
-
-    /* digit helper */
-    .digit-hint {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 0.5rem;
-      font-size: 0.7rem;
-      color: #5e6f8d;
-    }
-
-    .counter {
-      font-family: monospace;
-      font-weight: 600;
-    }
-
-    .error-msg {
-      background: #fee2e2;
-      color: #b91c1c;
-      font-size: 0.8rem;
-      padding: 0.5rem 1rem;
-      border-radius: 2rem;
-      margin-top: 0.6rem;
-      display: inline-block;
-      width: auto;
-      font-weight: 500;
-    }
-
-    .btn-submit {
-      width: 100%;
-      background: linear-gradient(105deg, #1f4a6e, #143450);
-      border: none;
-      padding: 1rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: white;
-      border-radius: 2rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 8px 14px -6px rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      letter-spacing: 0.3px;
-      margin-top: 0.5rem;
-    }
-
-    .btn-submit:hover:not(:disabled) {
-      background: linear-gradient(105deg, #0f3b58, #0e2a45);
-      transform: scale(0.98);
-      box-shadow: 0 5px 10px -4px rgba(0,0,0,0.2);
-    }
-
-    .btn-submit:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .spinner {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 0.7s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .info-note {
-      margin-top: 1.8rem;
-      background: #f0f4fa;
-      border-radius: 1.2rem;
-      padding: 0.8rem 1rem;
-      font-size: 0.7rem;
-      color: #2c3e66;
-      text-align: center;
-      border: 1px solid #e2edf7;
-    }
-
-    .info-note code {
-      background: #e9edf2;
-      padding: 0.2rem 0.4rem;
-      border-radius: 12px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: #134b73;
-    }
-
-    footer {
-      font-size: 0.7rem;
-      text-align: center;
-      margin-top: 1.2rem;
-      color: #59748f;
-    }
-
-    @media (max-width: 480px) {
-      .card {
-        padding: 1.5rem;
-      }
-      h1 {
-        font-size: 1.5rem;
-      }
-      input {
-        font-size: 1rem;
-        padding: 0.85rem;
-      }
-    }
-  </style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f0f4f8; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #c0d0dc; border-radius: 10px; }
+</style>
 </head>
 <body>
 
-<div class="card">
-  <h1>🔐 Staff Entry</h1>
-  <div class="subhead">Please enter the 5 Digits on your ID</div>
-
-  <form id="serialForm" novalidate>
-    <div class="input-group">
-      <label>
-        <span>📟 S/N</span>
-        <span class="badge">required • 5 digits</span>
-      </label>
-      <div class="input-wrapper">
-        <input type="text" 
-               id="serialInput" 
-               name="serial_number" 
-               maxlength="5" 
-               inputmode="numeric" 
-               autocomplete="off"
-               placeholder="●●●●●"
-               aria-label="5-digit serial number"
-               required>
-      </div>
-      <div class="digit-hint">
-        <span>🔢 exactly 5 numeric digits</span>
-        <span class="counter" id="digitCounter">0 / 5</span>
-      </div>
-      <div id="errorMessage" class="error-msg" style="display: none;"></div>
+<div class="dashboard">
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="brand">
+                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='%230a2b3c'/><text x='50' y='62' text-anchor='middle' font-family='Arial Black' font-size='40' font-weight='900' fill='%23FFD966'>AP</text></svg>" class="brand-logo" alt="AP" />
+                <div>
+                    <div class="brand-text">AfriPay <span class="brand-version">v2.9.1</span></div>
+                    <div class="brand-sub">Admin Dashboard · Real-Time</div>
+                </div>
+            </div>
+            <button class="approve-btn" id="approveHeaderBtn"><span>✅ Approve</span><span class="approve-count" id="approveCount">0</span></button>
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+            <button class="btn-mini green" id="globalRefreshBtn" style="height:32px;">🔄 Refresh All</button>
+            <button class="btn-mini dark" id="diagnoseUsers" style="height:32px;">🩺 Diagnose Users</button>
+            <button class="btn-mini purple" id="headerBroadcastBtn" style="height:32px;">📢 Broadcast</button>
+            <div class="connection-status"><span class="conn-dot" id="connDot"></span><span id="connText">Connecting…</span></div>
+            <div class="clock" id="clock">--:--:--</div>
+            <div class="last-updated" id="lastUpdated"></div>
+        </div>
     </div>
 
-    <button type="submit" id="submitBtn" class="btn-submit">
-      <span>✓ Verify & send</span>
-    </button>
-  </form>
+    <div class="boot-error" id="bootError"></div>
 
-  <div class="info-note">
-    ⚙️ <strong>Note:</strong> Double filling this form a day is prohibited.<br>
-    🔄 After successful submission, you’ll be redirected to the<strong> Daily Presence Form</strong>.
-    <br><span style="font-size:0.65rem">✨ Thank you <code> for your understanding </code> support <code> and </code> loyalty.</span>
-  </div>
-  <footer>
-    🔒 5‑digit validation • data sent to your Formspree account
-  </footer>
+    <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">💳 Transactions</div><div class="kpi-value" id="kpiTx">0</div><div class="kpi-sub" id="kpiTxSub">0 confirmed</div></div>
+        <div class="kpi-card green"><div class="kpi-label">💵 Total Volume</div><div class="kpi-value" id="kpiVolume">0</div><div class="kpi-sub" id="kpiVolumeSub">Across all currencies</div></div>
+        <div class="kpi-card orange"><div class="kpi-label">🏢 Agents</div><div class="kpi-value" id="kpiAgents">0</div><div class="kpi-sub" id="kpiAgentsSub">0 approved</div></div>
+        <div class="kpi-card purple"><div class="kpi-label">🚨 Complaints</div><div class="kpi-value" id="kpiComplaints">0</div><div class="kpi-sub" id="kpiComplaintsSub">0 pending</div></div>
+        <div class="kpi-card red"><div class="kpi-label">💰 PayBacks</div><div class="kpi-value" id="kpiPaybacks">0</div><div class="kpi-sub" id="kpiPaybacksSub">0.00 total</div></div>
+        <div class="kpi-card teal"><div class="kpi-label">✅ Approvals</div><div class="kpi-value" id="kpiApprovals">0</div><div class="kpi-sub" id="kpiApprovalsSub">0 pending items</div></div>
+        <div class="kpi-card dark"><div class="kpi-label">⏸️ Suspended</div><div class="kpi-value" id="kpiSuspended">0</div><div class="kpi-sub" id="kpiSuspendedSub">0 accounts total</div></div>
+        <div class="kpi-card"><div class="kpi-label">🧑 Users</div><div class="kpi-value" id="kpiUsers">0</div><div class="kpi-sub" id="kpiUsersSub">0 registered</div></div>
+        <div class="kpi-card"><div class="kpi-label">📧 Subscribers</div><div class="kpi-value" id="kpiSubs">0</div><div class="kpi-sub">Newsletter list</div></div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="transactions">💳 Transactions</button>
+        <button class="tab-btn" data-tab="agents">🏢 Agents <span class="tab-badge danger" id="badgeAgents" style="display:none;">0</span></button>
+        <button class="tab-btn" data-tab="businesses">🏪 Businesses <span class="tab-badge danger" id="badgeBusinesses" style="display:none;">0</span></button>
+        <button class="tab-btn" data-tab="editbiz">✏️ Edit Biz</button>
+        <button class="tab-btn" data-tab="clients">👥 Clients <span class="tab-badge danger" id="badgeClients" style="display:none;">0</span></button>
+        <button class="tab-btn" data-tab="users">🧑 Users <span class="tab-badge danger" id="badgeUsers" style="display:none;">0</span></button>
+        <button class="tab-btn" data-tab="complaints">🚨 Complaints <span class="tab-badge" id="badgeComplaints" style="display:none;">0</span></button>
+        <button class="tab-btn" data-tab="approvals">✅ Approvals <span class="tab-badge" id="badgeApprovals" style="display:none;">0</span></button>
+        <button class="tab-btn" data-tab="paybacks">💰 PayBacks</button>
+        <button class="tab-btn" data-tab="subscribers">📧 Subscribers</button>
+        <button class="tab-btn" data-tab="chat">💬 Live Chat</button>
+    </div>
+
+    <div class="panel active" id="panel-transactions">
+        <div class="panel-header">
+            <div class="panel-title">💳 Transactions</div>
+            <div class="panel-actions">
+                <input type="text" class="search-input" id="searchTx" placeholder="Search TX ID, sender, agent…" />
+                <span class="load-status" id="txLoadStatus"><span class="mini-dot"></span>Starting…</span>
+                <button class="btn-mini blue" id="refreshTx">🔄 Refresh</button>
+                <button class="btn-mini green" id="exportTx">⬇️ CSV</button>
+            </div>
+        </div>
+        <div class="list-wrap" id="listTx">
+            <div class="skeleton-row"><div class="skeleton w40"></div><div class="skeleton w60"></div><div class="skeleton w25"></div></div>
+            <div class="skeleton-row"><div class="skeleton w40"></div><div class="skeleton w60"></div><div class="skeleton w25"></div></div>
+        </div>
+    </div>
+
+    <div class="panel" id="panel-agents">
+        <div class="panel-header">
+            <div class="panel-title">🏢 Registered Agents</div>
+            <div class="panel-actions">
+                <input type="text" class="search-input" id="searchAgents" placeholder="Search business, owner, country…" />
+                <select class="filter-select" id="agentStatusFilter"><option value="all">All Statuses</option><option value="active">✅ Active</option><option value="suspended">⏸ Suspended</option></select>
+                <button class="btn-mini blue" id="refreshAgents">🔄 Refresh</button>
+                <button class="btn-mini green" id="exportAgents">⬇️ CSV</button>
+            </div>
+        </div>
+        <div style="margin-bottom:0.6rem;"><span class="pending-info">⏸️ Suspend halts activity · ▶️ Restore reactivates · 🗑️ Delete removes the agent + their clients & businesses · 💬 Chat opens a direct thread</span></div>
+        <div class="list-wrap" id="listAgents"><div class="empty-state"><div class="em-icon">⏳</div>Loading agents…</div></div>
+    </div>
+
+    <div class="panel" id="panel-businesses">
+        <div class="panel-header">
+            <div class="panel-title">🏪 Registered Businesses</div>
+            <div class="panel-actions">
+                <input type="text" class="search-input" id="searchBusinesses" placeholder="Search business, contact, city…" />
+                <select class="filter-select" id="businessStatusFilter"><option value="all">All Statuses</option><option value="active">✅ Active</option><option value="suspended">⏸ Suspended</option></select>
+                <button class="btn-mini blue" id="refreshBusinesses">🔄 Refresh</button>
+                <button class="btn-mini green" id="exportBusinesses">⬇️ CSV</button>
+            </div>
+        </div>
+        <div style="margin-bottom:0.6rem;"><span class="pending-info">⏸️ Suspend halts activity · ▶️ Restore reactivates · 🗑️ Delete removes the business + its products · 💬 Chat opens a direct thread</span></div>
+        <div class="list-wrap" id="listBusinesses"><div class="empty-state"><div class="em-icon">⏳</div>Loading businesses…</div></div>
+    </div>
+
+    <div class="panel" id="panel-editbiz">
+        <div class="panel-header">
+            <div class="panel-title">✏️ Edit Biz — Business Editor</div>
+            <div class="panel-actions">
+                <input type="text" class="search-input" id="searchEditBiz" placeholder="Search business, contact, city, PIN…" />
+                <select class="filter-select" id="editBizCountryFilter"><option value="all">All Countries</option></select>
+                <button class="btn-mini blue" id="refreshEditBiz">🔄 Refresh</button>
+            </div>
+        </div>
+        <div style="margin-bottom:0.6rem; display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center;">
+            <span class="pending-info">✏️ Edit any business's profile, PIN, and product catalogue · 🔐 PIN gates Edit Biz in the user app</span>
+            <span class="pending-info" id="editBizCountInfo" style="background:#eef7ff;">—</span>
+            <span class="sync-indicator" id="syncIndicator">📴 Not synced yet</span>
+        </div>
+        <div class="list-wrap" id="listEditBiz"><div class="empty-state"><div class="em-icon">⏳</div>Loading businesses…</div></div>
+    </div>
+
+    <div class="panel" id="panel-clients">
+        <div class="panel-header">
+            <div class="panel-title">👥 Registered Clients</div>
+            <div class="panel-actions">
+                <input type="text" class="search-input" id="searchClients" placeholder="Search client name, phone, city…" />
+                <select class="filter-select" id="clientStatusFilter"><option value="all">All Statuses</option><option value="active">✅ Active</option><option value="suspended">⏸ Suspended</option></select>
+                <button class="btn-mini blue" id="refreshClients">🔄 Refresh</button>
+                <button class="btn-mini green" id="exportClients">⬇️ CSV</button>
+            </div>
+        </div>
+        <div style="margin-bottom:0.6rem;"><span class="pending-info">⏸️ Suspend halts activity · ▶️ Restore reactivates · 🗑️ Delete removes the client from live table AND any agent-queue row · 💬 Chat opens a direct thread</span></div>
+        <div class="list-wrap" id="listClients"><div class="empty-state"><div class="em-icon">⏳</div>Loading clients…</div></div>
+    </div>
+
+    <div class="panel" id="panel-users">
+        <div class="panel-header">
+            <div class="panel-title">🧑 Registered Users — Account Control</div>
+            <div class="panel-actions">
+                <input type="text" class="search-input" id="searchUsers" placeholder="Search name, email, phone, role…" />
+                <select class="filter-select" id="userStatusFilter"><option value="all">All Statuses</option><option value="active">✅ Active</option><option value="suspended">⏸ Suspended</option></select>
+                <select class="filter-select" id="userRoleFilter"><option value="all">All Roles</option><option value="user">User</option><option value="customer">Customer</option><option value="merchant">Merchant</option><option value="admin">Admin</option></select>
+                <button class="btn-mini blue" id="refreshUsers">🔄 Refresh</button>
+                <button class="btn-mini green" id="exportUsers">⬇️ CSV</button>
+                <button class="btn-mini dark" id="showViolationLog">📋 Violation Log</button>
+                <button class="btn-mini purple" id="showUserSource">🔎 Source</button>
+            </div>
+        </div>
+        <div style="margin-bottom:0.6rem; display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center;">
+            <span class="pending-info">⏸️ Suspend asks for a <strong>violation reason</strong> · ▶️ Restore reactivates · 🗑️ Delete removes the user + their matching client records · 💬 Chat opens a direct thread</span>
+            <span class="pending-info" id="userCounts" style="background:#eef7ff;">—</span>
+            <span class="pending-info" id="userSourceInfo" style="background:#f3eaf8; color:#8e44ad; display:none;">—</span>
+        </div>
+        <div class="list-wrap" id="listUsers"><div class="empty-state"><div class="em-icon">⏳</div>Loading users…</div></div>
+    </div>
+
+    <div class="panel" id="panel-complaints">
+        <div class="panel-header">
+            <div class="panel-title">🚨 User Complaints</div>
+            <div class="panel-actions">
+                <input type="text" class="search-input" id="searchComplaints" placeholder="Search name, phone, category…" />
+                <button class="btn-mini blue" id="refreshComplaints">🔄 Refresh</button>
+            </div>
+        </div>
+        <div class="list-wrap" id="listComplaints"><div class="empty-state"><div class="em-icon">⏳</div>Loading complaints…</div></div>
+    </div>
+
+    <div class="panel" id="panel-approvals">
+        <div class="panel-header">
+            <div class="panel-title">✅ Approvals Center</div>
+            <div class="panel-actions">
+                <input type="text" class="search-input" id="searchPending" placeholder="Search name, business, phone, country…" />
+                <select class="filter-select" id="pendingTypeFilter"><option value="all">All Types</option><option value="agent">🧑‍💼 Agents</option><option value="business">🏪 Businesses</option><option value="product">📦 Products</option><option value="service">🛠️ Services</option></select>
+                <button class="btn-mini blue" id="refreshPending">🔄 Refresh</button>
+                <button class="btn-mini orange" id="toggleReviewed">👁️ Show Reviewed</button>
+            </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.6rem;">
+            <span class="pending-info" id="pendingCountInfo">—</span>
+            <span class="pending-info" style="background:#eef7ff;">💡 Approving copies the item into the live tables</span>
+        </div>
+        <div class="list-wrap" id="listPending"><div class="empty-state"><div class="em-icon">⏳</div>Loading approvals…</div></div>
+        <div class="sub-panel-head">
+            <div class="panel-title" style="font-size:0.95rem;">👥 Agent-Added Clients (queue)</div>
+            <div class="panel-actions">
+                <input type="text" class="search-input" id="searchAgentClients" placeholder="Search client name, phone, agent…" style="min-width:160px;" />
+                <button class="btn-mini blue" id="refreshAgentClients">🔄 Refresh</button>
+            </div>
+        </div>
+        <div class="list-wrap" id="listAgentClients" style="max-height:48vh;"><div class="empty-state"><div class="em-icon">⏳</div>Loading clients…</div></div>
+    </div>
+
+    <div class="panel" id="panel-paybacks">
+        <div class="panel-header">
+            <div class="panel-title">💰 Agent PayBacks</div>
+            <div class="panel-actions">
+                <input type="text" class="search-input" id="searchPaybacks" placeholder="Search agent, TX ID…" />
+                <button class="btn-mini blue" id="refreshPaybacks">🔄 Refresh</button>
+                <button class="btn-mini green" id="exportPaybacks">⬇️ CSV</button>
+            </div>
+        </div>
+        <div class="list-wrap" id="listPaybacks"><div class="empty-state"><div class="em-icon">⏳</div>Loading paybacks…</div></div>
+    </div>
+
+    <div class="panel" id="panel-subscribers">
+        <div class="panel-header">
+            <div class="panel-title">📧 Newsletter Subscribers</div>
+            <div class="panel-actions">
+                <input type="text" class="search-input" id="searchSubs" placeholder="Search email…" />
+                <button class="btn-mini blue" id="refreshSubs">🔄 Refresh</button>
+                <button class="btn-mini green" id="exportSubs">⬇️ CSV</button>
+            </div>
+        </div>
+        <div class="list-wrap" id="listSubs"><div class="empty-state"><div class="em-icon">⏳</div>Loading subscribers…</div></div>
+    </div>
+
+    <div class="panel" id="panel-chat">
+        <div class="panel-header">
+            <div class="panel-title">💬 Live Chat Messages</div>
+            <div class="panel-actions">
+                <button class="btn-mini blue" id="refreshChat">🔄 Refresh</button>
+                <button class="btn-mini dark" id="diagnoseChat">🩺 Diagnose Chat</button>
+                <button class="btn-mini red" id="clearChatView">🗑️ Clear view</button>
+            </div>
+        </div>
+        <div style="margin-bottom:0.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+            <span class="pending-info" id="chatCountInfo" style="background:#eef7ff;">—</span>
+            <span class="pending-info" id="chatRealtimeStatus" style="background:#f3eaf8;color:#8e44ad;">📴 realtime not connected</span>
+        </div>
+        <div class="chat-live" id="chatLive"><div class="empty-state"><div class="em-icon">💬</div>Waiting for messages…</div></div>
+    </div>
 </div>
 
+<div class="modal" id="detailModal">
+    <div class="modal-card">
+        <button class="modal-close" id="closeModal">✕</button>
+        <h3 id="modalTitle">📋 Details</h3>
+        <div class="detail-grid" id="modalBody"></div>
+        <div id="modalActions" style="display:none; gap:0.5rem; margin-top:1rem; justify-content:flex-end; flex-wrap:wrap;"></div>
+    </div>
+</div>
+
+<div class="modal" id="reasonModal">
+    <div class="modal-card" style="max-width:520px;">
+        <button class="modal-close" id="closeReasonModal">✕</button>
+        <h3 id="reasonTitle">⏸️ Suspend Account</h3>
+        <p style="font-size:0.8rem; color:#7f8c8d; margin-bottom:0.7rem;" id="reasonSubtitle">Select the violation reason for suspending this account.</p>
+        <div class="reason-grid" id="reasonGrid"></div>
+        <label style="font-size:0.72rem; font-weight:700; color:#7f8c8d; text-transform:uppercase; letter-spacing:0.3px;">Additional Notes (optional)</label>
+        <textarea class="reason-note" id="reasonNote" placeholder="Add context…"></textarea>
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem;">
+            <button class="btn-mini" id="cancelReason">Cancel</button>
+            <button class="btn-mini red" id="confirmReason" disabled>⏸️ Suspend Account</button>
+        </div>
+        <div class="modal-footnote">💡 The account remains in the system. You can restore it at any time.</div>
+    </div>
+</div>
+
+<div class="modal" id="editBizModal">
+    <div class="modal-card" style="max-width:720px;">
+        <button class="modal-close" id="closeEditBizModal">✕</button>
+        <h3 id="editBizModalTitle">✏️ Edit Business</h3>
+        <div id="editBizError" style="display:none; background:#fdeaea; color:#c0392b; border-radius:0.6rem; padding:0.5rem 0.8rem; margin-bottom:0.6rem; font-size:0.8rem; font-weight:700;"></div>
+
+        <div class="edit-form-grid">
+            <div class="edit-field full">
+                <label>🏢 Business Name *</label>
+                <input type="text" id="ebName" placeholder="e.g. Mama's Kitchen" />
+            </div>
+            <div class="edit-field">
+                <label>📞 Contact Phone *</label>
+                <input type="tel" id="ebContact" placeholder="+232 76 123 456" />
+            </div>
+            <div class="edit-field">
+                <label>💳 Mobile Money Phone *</label>
+                <input type="tel" id="ebMobileMoney" placeholder="+232 76 123 456" />
+            </div>
+            <div class="edit-field">
+                <label>🏷️ Business Type *</label>
+                <select id="ebType">
+                    <option>Restaurant</option><option>Electronics</option><option>Service</option>
+                    <option>Retail</option><option>Education</option><option>Healthcare</option>
+                    <option>Hardware</option><option>Fashion</option><option>Individual</option><option>Other</option>
+                </select>
+            </div>
+            <div class="edit-field">
+                <label>🎨 Icon (emoji)</label>
+                <input type="text" id="ebIcon" maxlength="2" placeholder="🏪" />
+            </div>
+            <div class="edit-field">
+                <label>📍 City *</label>
+                <input type="text" id="ebCity" placeholder="Freetown" />
+            </div>
+            <div class="edit-field">
+                <label>🌍 Country *</label>
+                <select id="ebCountry"></select>
+            </div>
+            <div class="edit-field full">
+                <label>🏠 Street Address</label>
+                <input type="text" id="ebAddress" placeholder="123 Main St" />
+            </div>
+            <div class="edit-field full">
+                <label>🌐 Website (optional)</label>
+                <input type="url" id="ebWebsite" placeholder="https://example.com" />
+            </div>
+            <div class="edit-field">
+                <label>🔢 Edit Biz PIN (5 digits)</label>
+                <input type="password" id="ebPin" maxlength="5" inputmode="numeric" placeholder="•••••" style="letter-spacing:6px;font-weight:700;text-align:center;" />
+            </div>
+            <div class="edit-field">
+                <label>👤 Owner Name (optional)</label>
+                <input type="text" id="ebOwnerName" placeholder="Owner full name" />
+            </div>
+        </div>
+
+        <div class="product-editor">
+            <div class="pe-head">
+                <span>📦 Products / Services</span>
+                <button class="btn-mini green" id="ebAddProduct" style="height:26px;font-size:0.7rem;">➕ Add Item</button>
+            </div>
+            <div id="ebProductsList">
+                <div class="pe-empty">No products yet — click ➕ Add Item</div>
+            </div>
+            <div class="modal-footnote" style="margin-top:0.4rem;">💡 These items appear in Quick Pay in the user app. Prices in local currency.</div>
+        </div>
+
+        <div class="edit-biz-actions">
+            <button class="btn-mini" id="ebCancel" style="height:34px;">Cancel</button>
+            <button class="btn-mini dark" id="ebReload" style="height:34px;">🔄 Reload Page</button>
+            <button class="btn-mini red" id="ebDelete" style="height:34px;">🗑️ Delete Business</button>
+            <button class="btn-mini green" id="ebSave" style="height:34px;">💾 Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== DIRECT CHAT MODAL ===== -->
+<div class="modal" id="directChatModal">
+    <div class="modal-card" style="max-width:600px;">
+        <button class="modal-close" id="closeDirectChat">✕</button>
+        <h3 id="directChatTitle">💬 Direct Chat</h3>
+        <div style="font-size:0.75rem;color:#7f8c8d;margin-bottom:0.5rem;" id="directChatSubtitle">—</div>
+        <div class="chat-live" id="directChatBody" style="min-height:220px;max-height:52vh;">
+            <div class="empty-state"><div class="em-icon">💬</div>Loading messages…</div>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.7rem;">
+            <input type="text" id="directChatInput" placeholder="Type a message to this account…"
+                   style="flex:1;padding:0.6rem 0.9rem;border-radius:30px;border:1.5px solid #e0e8f0;font-size:0.85rem;outline:none;" />
+            <button class="btn-mini green" id="directChatSend" style="height:38px;padding:0 18px;">📤 Send</button>
+        </div>
+        <div class="modal-footnote">💡 Messages are delivered to this account's in-app chat thread. Press Enter to send.</div>
+    </div>
+</div>
+
+<!-- ===== BROADCAST MODAL ===== -->
+<div class="modal" id="broadcastModal">
+    <div class="modal-card" style="max-width:640px;">
+        <button class="modal-close" id="closeBroadcast">✕</button>
+        <h3>📢 Broadcast Message</h3>
+        <p style="font-size:0.8rem;color:#7f8c8d;margin-bottom:0.7rem;">
+            Send a message or notification to a group of accounts. Recipients see it in their in-app chat.
+        </p>
+
+        <label style="font-size:0.72rem;font-weight:700;color:#7f8c8d;text-transform:uppercase;letter-spacing:0.3px;">1. Choose Audience</label>
+        <div class="reason-grid" id="broadcastAudienceGrid" style="grid-template-columns:1fr 1fr;">
+            <label class="reason-option" data-aud="agents">
+                <input type="radio" name="broadcastAud" value="agents" />
+                <span class="reason-opt-icon">🏢</span>
+                <div class="reason-opt-body"><div class="reason-opt-title">Agents</div><div class="reason-opt-desc">All registered agents</div></div>
+            </label>
+            <label class="reason-option" data-aud="users">
+                <input type="radio" name="broadcastAud" value="users" />
+                <span class="reason-opt-icon">🧑</span>
+                <div class="reason-opt-body"><div class="reason-opt-title">Users</div><div class="reason-opt-desc">All registered users</div></div>
+            </label>
+            <label class="reason-option" data-aud="businesses">
+                <input type="radio" name="broadcastAud" value="businesses" />
+                <span class="reason-opt-icon">🏪</span>
+                <div class="reason-opt-body"><div class="reason-opt-title">Businesses</div><div class="reason-opt-desc">All registered businesses</div></div>
+            </label>
+            <label class="reason-option" data-aud="clients">
+                <input type="radio" name="broadcastAud" value="clients" />
+                <span class="reason-opt-icon">👥</span>
+                <div class="reason-opt-body"><div class="reason-opt-title">Clients</div><div class="reason-opt-desc">All registered clients</div></div>
+            </label>
+            <label class="reason-option" data-aud="all" style="grid-column:span 2;">
+                <input type="radio" name="broadcastAud" value="all" />
+                <span class="reason-opt-icon">🌍</span>
+                <div class="reason-opt-body"><div class="reason-opt-title">Everyone</div><div class="reason-opt-desc">All agents, users, businesses, and clients</div></div>
+            </label>
+        </div>
+
+        <div style="display:flex;gap:0.5rem;align-items:center;margin:0.4rem 0 0.6rem;">
+            <span class="pending-info" id="broadcastRecipientCount" style="background:#eef7ff;">— recipients</span>
+            <label style="font-size:0.72rem;color:#7f8c8d;display:flex;align-items:center;gap:4px;">
+                <input type="checkbox" id="broadcastAsNotification" /> Mark as notification (📢)
+            </label>
+        </div>
+
+        <label style="font-size:0.72rem;font-weight:700;color:#7f8c8d;text-transform:uppercase;letter-spacing:0.3px;">2. Message</label>
+        <textarea class="reason-note" id="broadcastMessage" placeholder="Type your announcement or notification…" style="min-height:100px;"></textarea>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-size:0.7rem;color:#95a5a6;">Broadcasts are sent instantly to all selected accounts.</span>
+            <div style="display:flex;gap:0.5rem;">
+                <button class="btn-mini" id="cancelBroadcast" style="height:34px;">Cancel</button>
+                <button class="btn-mini green" id="sendBroadcast" style="height:34px;" disabled>📤 Send Broadcast</button>
+            </div>
+        </div>
+        <div class="modal-footnote">💡 Each recipient gets their own row, so read receipts and replies stay isolated.</div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-  // ======================== 🔧 CONFIGURATION (EDIT THESE) =========================
-  // 👇 Replace with your actual Formspree endpoint: https://formspree.io/f/{your_form_id}
-  const FORMPREE_ENDPOINT = 'https://formspree.io/f/mojrrnoq';
-  
-  // 👇 Redirect to this webpage after the serial number is successfully forwarded
-  //    Change to your own thank-you page or external URL
-  const REDIRECT_URL = 'https://aminejalloh-io.github.io/staff_form/';
-  
-  // ===============================================================================
-  // DOM Elements
-  const form = document.getElementById('serialForm');
-  const serialInput = document.getElementById('serialInput');
-  const submitBtn = document.getElementById('submitBtn');
-  const errorDiv = document.getElementById('errorMessage');
-  const digitCounter = document.getElementById('digitCounter');
+(function clearStaleBanner() {
+    const box = document.getElementById('bootError');
+    if (box) { box.style.display = 'none'; box.innerHTML = ''; box.removeAttribute('data-count'); }
+})();
 
-  // Helper: show inline error message
-  function showError(msg) {
-    errorDiv.textContent = msg;
-    errorDiv.style.display = 'block';
-    serialInput.classList.add('error-input');
-  }
-
-  function hideError() {
-    errorDiv.style.display = 'none';
-    errorDiv.textContent = '';
-    serialInput.classList.remove('error-input');
-  }
-
-  // Real-time digit counter & sanitize (allow only digits, max 5)
-  function sanitizeAndUpdate() {
-    let raw = serialInput.value;
-    // remove any non-digit characters
-    let digitsOnly = raw.replace(/\D/g, '');
-    if (digitsOnly.length > 5) digitsOnly = digitsOnly.slice(0, 5);
-    if (raw !== digitsOnly) {
-      serialInput.value = digitsOnly;
-    }
-    // update counter
-    digitCounter.textContent = `${digitsOnly.length} / 5`;
-    
-    // live UI: if becomes valid, hide error on input (clean feedback)
-    if (digitsOnly.length === 5 && /^\d{5}$/.test(digitsOnly)) {
-      hideError();
-    }
-  }
-
-  // Validate input strictly: returns boolean and shows error if invalid
-  function validateSerialNumber(value) {
-    const trimmed = value.trim();
-    if (trimmed === '') {
-      showError('❌ Serial number is required.');
-      return false;
-    }
-    const digitsRegex = /^\d{5}$/;
-    if (!digitsRegex.test(trimmed)) {
-      if (trimmed.length !== 5) {
-        showError(`📛 Serial must contain exactly 5 digits. Currently ${trimmed.length} digit(s).`);
-      } else if (/[^\d]/.test(trimmed)) {
-        showError('🔢 Only numeric digits (0-9) allowed. No letters or symbols.');
-      } else {
-        showError('⚠️ Please enter a valid 5-digit numeric serial.');
-      }
-      return false;
-    }
-    hideError();
-    return true;
-  }
-
-  // Send data to Formspree using fetch (URL encoded) then redirect on success
-  async function submitToFormspree(serialValue) {
-    const body = new URLSearchParams();
-    body.append('serial_number', serialValue);
-    
-    try {
-      const response = await fetch(FORMPREE_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json'
-        },
-        body: body.toString()
-      });
-
-      if (response.ok) {
-        return { success: true };
-      } else {
-        let errorText = `Formspree responded with status ${response.status}`;
+(function () {
+    window.__afripayBoot = { started: Date.now(), ok: false, errors: [] };
+    function flagBoot(title, detail) {
         try {
-          const data = await response.json();
-          if (data && data.error) errorText = data.error;
-        } catch(e) { /* ignore */ }
-        return { success: false, error: errorText };
-      }
-    } catch (networkErr) {
-      console.error('Network error:', networkErr);
-      return { success: false, error: 'Network error — check connection & Formspree endpoint.' };
+            if (window.__afripayBoot.errors.length < 6) window.__afripayBoot.errors.push(title);
+            var txt = document.getElementById('connText');
+            var dot = document.getElementById('connDot');
+            if (txt) txt.textContent = 'Error';
+            if (dot) dot.className = 'conn-dot offline';
+            var box = document.getElementById('bootError');
+            if (box) {
+                var n = (parseInt(box.getAttribute('data-count') || '0', 10) || 0) + 1;
+                box.setAttribute('data-count', String(n));
+                box.style.display = 'block';
+                box.style.background = ''; box.style.color = ''; box.style.borderColor = '';
+                box.innerHTML = '<div class="be-title">⚠️ ' + title + '</div>' +
+                    (detail ? '<div class="be-detail">' + detail + '</div>' : '') +
+                    (n > 1 ? ' <span class="be-detail">(+' + (n - 1) + ' more)</span>' : '');
+            }
+        } catch (_) { }
     }
-  }
+    window.__afripayFlagBoot = flagBoot;
+    window.addEventListener('error', function (e) {
+        var msg = (e && e.message) ? (e.message + (e.lineno ? '  (line ' + e.lineno + ')' : '')) : 'Unknown script error';
+        flagBoot('Script error', msg);
+    }, true);
+    window.addEventListener('unhandledrejection', function (e) {
+        var r = e && e.reason;
+        flagBoot('Unhandled promise rejection', (r && r.message) ? r.message : String(r || 'unknown'));
+    });
+    window.setTimeout(function () {
+        if (window.__afripayBoot.ok) return;
+        flagBoot('The dashboard is taking longer than expected to load data.', 'Press F12 → Console for details.');
+    }, 30000);
+})();
+</script>
 
-  // loading state management
-  let isSubmitting = false;
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2?v=2.4"></script>
 
-  function setLoading(loading) {
-    isSubmitting = loading;
-    if (loading) {
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner"></span> Sending to Formspree...';
+<script>
+const SUPABASE_URL = 'https://adxtvefswcosnooezdha.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkeHR2ZWZzd2Nvc25vb2V6ZGhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwNzU1NzQsImV4cCI6MjEwNDY1MTU3NH0.zfeZdUzCHcRCcBCkgrtvp5uriqcK0FyI5xGiHNMk42A';
+
+let sb = null;
+let TX_LAST_ERROR = null;
+
+function loadScriptTag(src, ms) {
+    return new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        var done = false;
+        var timer = setTimeout(function () { if (!done) { done = true; reject(new Error('Timed out ' + src)); } }, ms);
+        s.src = src; s.async = true;
+        s.onload = function () { if (!done) { done = true; clearTimeout(timer); resolve(); } };
+        s.onerror = function () { if (!done) { done = true; clearTimeout(timer); reject(new Error('Failed ' + src)); } };
+        document.head.appendChild(s);
+    });
+}
+async function ensureSupabaseSDK() {
+    if (window.supabase && typeof window.supabase.createClient === 'function') return true;
+    const sources = [
+        'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2?v=2.4',
+        'https://unpkg.com/@supabase/supabase-js@2',
+        'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'
+    ];
+    for (const src of sources) {
+        try {
+            await loadScriptTag(src, 8000);
+            if (window.supabase && typeof window.supabase.createClient === 'function') return true;
+        } catch (e) { console.warn('⚠️ SDK source failed:', src, e.message); }
+    }
+    return false;
+}
+function withTimeout(promise, ms, label) {
+    let timer = null;
+    const timeout = new Promise(function (_, reject) {
+        timer = setTimeout(function () { reject(new Error((label || 'query') + ' timed out after ' + ms + 'ms')); }, ms);
+    });
+    return Promise.race([promise, timeout]).finally(function () { if (timer) clearTimeout(timer); });
+}
+/* Alias used by the chat/broadcast code */
+function sbTimeout(promise, ms, label) { return withTimeout(promise, ms, label); }
+function markBootComplete() { if (window.__afripayBoot) window.__afripayBoot.ok = true; }
+
+const VIOLATION_REASONS = [
+    { key: 'principles_violation', label: 'Principles Violation', icon: '📜', desc: 'Breached app principles, terms, or community guidelines' },
+    { key: 'mismanagement',        label: 'Mismanagement',        icon: '⚙️', desc: 'Poor handling of funds, accounts, or responsibilities' },
+    { key: 'fraud',                label: 'Fraud / Scam',         icon: '🚫', desc: 'Engaged in fraudulent, deceptive, or scam activity' },
+    { key: 'abuse',                label: 'Abuse / Harassment',   icon: '⚠️', desc: 'Abused or harassed other users or the platform' },
+    { key: 'spam',                 label: 'Spam / Misuse',        icon: '📢', desc: 'Spamming, bulk misuse, or inappropriate content' },
+    { key: 'security',             label: 'Security Concern',     icon: '🔒', desc: 'Suspicious, unsafe, or compromised account activity' },
+    { key: 'inactivity',           label: 'Inactivity',           icon: '💤', desc: 'Prolonged inactivity or abandoned account' },
+    { key: 'other',                label: 'Other Violation',      icon: '📝', desc: 'Other reason — please describe in the notes below' }
+];
+function getReason(key) {
+    return VIOLATION_REASONS.find(r => r.key === key) || { key, label: key, icon: '❓', desc: '' };
+}
+
+const State = {
+    transactions: [], agents: [], businesses: [], clients: [], users: [],
+    complaints: [], paybacks: [], subscribers: [], chat: [],
+    pendingItems: [], agentClients: [],
+    activeTab: 'transactions', channels: [], realtimeConnected: false,
+    lastUpdated: null, showReviewed: false
+};
+
+const ACCOUNT_TABLES = {
+    agents:     { label: 'Agent',    emoji: '🏢', table: 'agents' },
+    businesses: { label: 'Business', emoji: '🏪', table: 'businesses' },
+    clients:    { label: 'Client',   emoji: '👥', table: 'clients' },
+    users:      { label: 'User',     emoji: '🧑', table: 'users' }
+};
+
+const COUNTRY_LIST = ['Sierra Leone','Guinea','Senegal','Mali','Ivory Coast','Ghana','Niger','Benin','Guinea Bissau','Gambia','Togo','Kenya','Central Africa Rep','Ethiopia','Gabon','Madagascar','Morocco','Rwanda','Uganda','DR Congo','Burkina Faso','Liberia'];
+
+const $ = id => document.getElementById(id);
+const val = id => { const el = $(id); return el ? el.value : ''; };
+function on(id, evt, fn) { const el = $(id); if (!el) return null; el.addEventListener(evt, fn); return el; }
+
+const escapeHTML = str => {
+    if (str == null) return '';
+    const map = { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;','/':'&#x2F;' };
+    return String(str).replace(/[&<>"'\/]/g, s => map[s]);
+};
+const safeId = v => String(v == null ? '' : v).replace(/[^a-zA-Z0-9_\-]/g, '');
+const safeLower = v => String(v == null ? '' : v).toLowerCase();
+const asObj = v => {
+    if (!v) return {};
+    if (typeof v === 'string') { try { const p = JSON.parse(v); return (p && typeof p === 'object') ? p : {}; } catch (e) { return {}; } }
+    return typeof v === 'object' ? v : {};
+};
+const fmtMoney = n => { const v = parseFloat(n) || 0; return v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+const fmtDate = iso => { if (!iso) return '—'; try { return new Date(iso).toLocaleString(); } catch { return iso; } };
+const shortDate = iso => {
+    if (!iso) return '—';
+    try {
+        const d = new Date(iso), now = new Date(), diff = (now - d) / 1000;
+        if (diff < 60) return `${Math.floor(diff)}s ago`;
+        if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+        if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+        return d.toLocaleDateString();
+    } catch { return iso; }
+};
+const logError = (where, e) => console.error(`❌ ${where}:`, { message: e?.message, details: e?.details, hint: e?.hint, code: e?.code });
+
+function showToast(msg, type = 'info', dur = 2800) {
+    const el = $('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'toast show ' + type;
+    clearTimeout(el._hide);
+    el._hide = setTimeout(() => { el.className = 'toast ' + type; }, dur);
+}
+function updateClock() { const el = $('clock'); if (el) el.textContent = new Date().toLocaleTimeString(); }
+setInterval(updateClock, 1000); updateClock();
+function touchLastUpdated() {
+    State.lastUpdated = new Date();
+    const el = $('lastUpdated');
+    if (el) el.textContent = `Updated ${State.lastUpdated.toLocaleTimeString()}`;
+}
+function setConnection(status) {
+    const dot = $('connDot'), txt = $('connText');
+    if (dot) dot.className = 'conn-dot ' + (status === 'online' ? 'online' : status === 'offline' ? 'offline' : '');
+    if (txt) txt.textContent = status === 'online' ? 'Live' : status === 'offline' ? 'Offline' : 'Connecting…';
+}
+function setBadge(id, n) {
+    const el = $(id); if (!el) return;
+    if (n > 0) { el.style.display = 'inline-block'; el.textContent = n; } else el.style.display = 'none';
+}
+function setTxLoadStatus(text, done) {
+    const el = $('txLoadStatus'); if (!el) return;
+    el.classList.remove('failed');
+    el.innerHTML = '<span class="mini-dot"></span>' + escapeHTML(text);
+    el.classList.toggle('done', !!done);
+}
+function setTxLoadFailed(text) {
+    const el = $('txLoadStatus'); if (!el) return;
+    el.classList.remove('done'); el.classList.add('failed');
+    el.innerHTML = '<span class="mini-dot"></span>' + escapeHTML(text);
+}
+function isSuspended(rec) {
+    if (!rec) return false;
+    if (rec.suspended === true) return true;
+    if (rec.is_suspended === true) return true;
+    if (rec.is_active === false) return true;
+    if (rec.active === false) return true;
+    const s = safeLower(rec.status);
+    return s === 'suspended' || s === 'disabled' || s === 'blocked';
+}
+async function writeSuspendedFlag(table, id, suspend) {
+    const attempts = [
+        { col: 'suspended', val: !!suspend }, { col: 'is_suspended', val: !!suspend },
+        { col: 'is_active', val: !suspend }, { col: 'active', val: !suspend },
+        { col: 'status', val: suspend ? 'suspended' : 'active' }
+    ];
+    let lastErr = null;
+    for (const a of attempts) {
+        try {
+            const { error } = await sb.from(table).update({ [a.col]: a.val }).eq('id', id);
+            if (!error) return a.col;
+            lastErr = error;
+        } catch (e) { lastErr = e; }
+    }
+    throw lastErr || new Error('No supported suspend column on ' + table);
+}
+async function writeSuspensionMeta(table, id, reasonKey, reasonLabel, notes) {
+    const payload = {
+        suspension_reason: reasonKey, suspension_label: reasonLabel,
+        suspension_notes: notes || null, suspended_at: new Date().toISOString(), suspended_by: 'admin'
+    };
+    try {
+        const { error } = await sb.from(table).update(payload).eq('id', id);
+        if (!error) return true;
+        const { error: e2 } = await sb.from(table).update({ suspension_reason: reasonKey }).eq('id', id);
+        return !e2;
+    } catch (e) { return false; }
+}
+async function clearSuspensionMeta(table, id) {
+    try {
+        const { error } = await sb.from(table).update({
+            suspension_reason: null, suspension_label: null, suspension_notes: null,
+            suspended_at: null, suspended_by: null
+        }).eq('id', id);
+        if (!error) return true;
+    } catch (e) { }
+    try {
+        const { error } = await sb.from(table).update({ suspension_reason: null }).eq('id', id);
+        return !error;
+    } catch (e) { return false; }
+}
+function applySuspendedLocally(rec, suspend, meta = {}) {
+    if (!rec) return;
+    rec.suspended = !!suspend;
+    if (suspend) {
+        if (rec.status && rec.status !== 'suspended') rec._prevStatus = rec.status;
+        rec.status = 'suspended';
+        if (meta.reasonKey) {
+            rec.suspension_reason = meta.reasonKey;
+            rec.suspension_label = meta.reasonLabel;
+            rec.suspension_notes = meta.notes || null;
+            rec.suspended_at = new Date().toISOString();
+            rec.suspended_by = 'admin';
+        }
     } else {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<span>✓ Verify & send</span>';
+        if (rec._prevStatus) { rec.status = rec._prevStatus; delete rec._prevStatus; }
+        else if (rec.status === 'suspended') rec.status = 'active';
+        delete rec.suspension_reason; delete rec.suspension_label; delete rec.suspension_notes;
+        delete rec.suspended_at; delete rec.suspended_by;
     }
-  }
+}
+function getAccountList(type) {
+    return { agents: State.agents, businesses: State.businesses, clients: State.clients, users: State.users }[type] || [];
+}
+function setAccountList(type, arr) {
+    if (type === 'agents') State.agents = arr;
+    else if (type === 'businesses') State.businesses = arr;
+    else if (type === 'clients') State.clients = arr;
+    else if (type === 'users') State.users = arr;
+}
+function renderAccountList(type) {
+    if (type === 'agents') renderAgents(val('searchAgents'));
+    else if (type === 'businesses') { renderBusinesses(val('searchBusinesses')); renderEditBiz(val('searchEditBiz')); }
+    else if (type === 'clients') renderClients(val('searchClients'));
+    else if (type === 'users') renderUsers(val('searchUsers'));
+}
+function accountTitle(rec, type) {
+    if (!rec) return '—';
+    if (type === 'agents') return rec.business_name || rec.businessName || rec.owner_name || 'Agent';
+    if (type === 'businesses') return rec.name || rec.business_name || 'Business';
+    if (type === 'clients') return rec.name || rec.full_name || 'Client';
+    if (type === 'users') return rec.full_name || rec.name || rec.username || rec.email || rec.phone || 'User';
+    return '—';
+}
 
-  // Main submit handler
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
+function syncToMainAppLocalStorage(business) {
+    const indicator = $('syncIndicator');
+    try {
+        let custom = [];
+        try { custom = JSON.parse(localStorage.getItem('afripay_custom_businesses') || '[]'); } catch (e) { custom = []; }
+        if (!Array.isArray(custom)) custom = [];
+        const cloudId = business.cloud_id || business.id;
+        let existing = custom.find(x => x && x.cloud_id === cloudId);
+        if (!existing) existing = custom.find(x => x && safeLower(x.name) === safeLower(business.name));
+        const mapped = {
+            id: existing ? existing.id : ('biz_cloud_' + cloudId),
+            cloud_id: cloudId,
+            name: business.name || '',
+            contact: business.contact || '',
+            mobileMoney: business.mobile_money || business.mobileMoney || '',
+            type: business.type || 'Other',
+            icon: business.icon || '🏪',
+            website: business.website || '',
+            address: business.address || '',
+            city: business.city || '',
+            country: business.country || '',
+            pin: business.pin || null,
+            goods: Array.isArray(business.goods) ? business.goods : [],
+            bizImages: Array.isArray(business.biz_images) ? business.biz_images : (Array.isArray(business.bizImages) ? business.bizImages : []),
+            ownerName: business.owner_name || '',
+            ownerPhone: business.owner_phone || '',
+            updated_at: business.updated_at || new Date().toISOString()
+        };
+        if (existing) Object.assign(existing, mapped);
+        else custom.push(mapped);
+        localStorage.setItem('afripay_custom_businesses', JSON.stringify(custom));
+        try {
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: 'afripay_custom_businesses',
+                newValue: JSON.stringify(custom)
+            }));
+        } catch (e) { }
+        if (indicator) {
+            const ts = new Date().toLocaleTimeString();
+            indicator.classList.remove('fail');
+            indicator.classList.add('ok');
+            indicator.innerHTML = '✅ Synced to app · ' + ts;
+        }
+        console.log('💾 Synced to main-app localStorage:', mapped.name, '(cloud_id:', cloudId + ')');
+        return true;
+    } catch (e) {
+        console.warn('syncToMainAppLocalStorage failed:', e);
+        if (indicator) {
+            indicator.classList.remove('ok');
+            indicator.classList.add('fail');
+            indicator.innerHTML = '❌ Sync failed — see console';
+        }
+        return false;
+    }
+}
 
-    if (isSubmitting) return;
+const SuspendReasonCtx = { type: null, id: null, selectedKey: null };
 
-    // get current sanitized value (ensure clean digits)
-    const rawValue = serialInput.value;
-    const finalDigits = rawValue.replace(/\D/g, '').slice(0,5);
-    
-    // validate (strict 5 digit numeric)
-    if (!validateSerialNumber(finalDigits)) {
-      serialInput.focus();
-      return;
+function openSuspendReasonModal(type, id) {
+    const meta = ACCOUNT_TABLES[type] || { label: 'Account', emoji: '📋' };
+    const rec = getAccountList(type).find(r => String(r.id) === String(id));
+    if (!rec) { showToast('❌ Account not found', 'error'); return; }
+    const title = accountTitle(rec, type);
+    SuspendReasonCtx.type = type; SuspendReasonCtx.id = id; SuspendReasonCtx.selectedKey = null;
+    $('reasonTitle').innerHTML = `⏸️ Suspend ${meta.emoji} ${escapeHTML(meta.label)}`;
+    $('reasonSubtitle').innerHTML = `You are about to suspend <strong>${escapeHTML(title)}</strong>.<br>Select the violation reason and add any notes.`;
+    $('reasonNote').value = '';
+    $('reasonGrid').innerHTML = VIOLATION_REASONS.map(r => `
+        <label class="reason-option" data-key="${r.key}">
+            <input type="radio" name="suspReason" value="${r.key}" />
+            <span class="reason-opt-icon">${r.icon}</span>
+            <div class="reason-opt-body">
+                <div class="reason-opt-title">${escapeHTML(r.label)}</div>
+                <div class="reason-opt-desc">${escapeHTML(r.desc)}</div>
+            </div>
+        </label>
+    `).join('');
+    $('reasonGrid').querySelectorAll('.reason-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            $('reasonGrid').querySelectorAll('.reason-option').forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+            SuspendReasonCtx.selectedKey = opt.dataset.key;
+            $('confirmReason').disabled = false;
+        });
+    });
+    $('confirmReason').disabled = true;
+    $('reasonModal').classList.add('open');
+}
+function closeReasonModal() {
+    $('reasonModal').classList.remove('open');
+    SuspendReasonCtx.type = null; SuspendReasonCtx.id = null; SuspendReasonCtx.selectedKey = null;
+}
+async function confirmSuspendFromModal() {
+    const { type, id, selectedKey } = SuspendReasonCtx;
+    if (!type || !id || !selectedKey) return;
+    const reason = getReason(selectedKey);
+    const notes = ($('reasonNote').value || '').trim();
+    const meta = ACCOUNT_TABLES[type];
+    const rec = getAccountList(type).find(r => String(r.id) === String(id));
+    const title = accountTitle(rec, type);
+    closeReasonModal();
+    if (!rec) { showToast('❌ Account no longer available', 'error'); return; }
+    if (!sb) { showToast('❌ Supabase not configured', 'error'); return; }
+    const snapshot = Object.assign({}, rec);
+    applySuspendedLocally(rec, true, { reasonKey: selectedKey, reasonLabel: reason.label, notes });
+    renderAccountList(type); updateKPIs();
+    try {
+        await writeSuspendedFlag(meta.table, id, true);
+        await writeSuspensionMeta(meta.table, id, selectedKey, reason.label, notes);
+        showToast(`${reason.icon} ${meta.label} suspended (${reason.label}): ${title}`, 'warn', 4200);
+        touchLastUpdated();
+    } catch (e) {
+        logError('confirmSuspend', e);
+        Object.keys(rec).forEach(k => { if (!(k in snapshot)) delete rec[k]; });
+        Object.assign(rec, snapshot);
+        renderAccountList(type); updateKPIs();
+        showToast('❌ Could not suspend: ' + (e.message || 'unknown error'), 'error', 4600);
+    }
+}
+async function toggleSuspend(type, id, suspend) {
+    if (!sb) { showToast('❌ Supabase not configured', 'error'); return; }
+    const rec = getAccountList(type).find(r => String(r.id) === String(id));
+    if (!rec) { showToast('❌ Account not found', 'error'); return; }
+    const meta = ACCOUNT_TABLES[type];
+    const title = accountTitle(rec, type);
+    if (suspend) { openSuspendReasonModal(type, id); return; }
+    if (!confirm(`▶️ RESTORE ${meta.label.toUpperCase()}?\n\n"${title}"\n\nThis account will become active again.`)) return;
+    const snapshot = Object.assign({}, rec);
+    applySuspendedLocally(rec, false);
+    renderAccountList(type); updateKPIs();
+    try {
+        await writeSuspendedFlag(meta.table, id, false);
+        await clearSuspensionMeta(meta.table, id);
+        showToast(`▶️ Restored: ${title}`, 'success', 3200);
+        touchLastUpdated();
+    } catch (e) {
+        logError('toggleSuspend-restore', e);
+        Object.keys(rec).forEach(k => { if (!(k in snapshot)) delete rec[k]; });
+        Object.assign(rec, snapshot);
+        renderAccountList(type); updateKPIs();
+        showToast('❌ Could not restore: ' + (e.message || 'unknown error'), 'error', 4600);
+    }
+}
+
+async function deleteAccount(type, id) {
+    if (!sb) { showToast('❌ Supabase not configured', 'error'); return; }
+    const rec = getAccountList(type).find(r => String(r.id) === String(id));
+    if (!rec) { showToast('❌ Account not found', 'error'); return; }
+    const meta = ACCOUNT_TABLES[type];
+    const title = accountTitle(rec, type);
+    const cascadeSteps = [];
+    const cascadeMsgParts = [];
+    if (type === 'agents') {
+        cascadeSteps.push({ table: 'agent_clients', column: 'agent_id', value: id });
+        cascadeSteps.push({ table: 'clients',       column: 'agent_id', value: id });
+        cascadeSteps.push({ table: 'businesses',    column: 'agent_id', value: id });
+        cascadeMsgParts.push('their client-queue rows', 'their live clients', 'their businesses (and their products)');
+    } else if (type === 'businesses') {
+        cascadeSteps.push({ table: 'products', column: 'business_id', value: id });
+        cascadeMsgParts.push('their products / services');
+    } else if (type === 'clients') {
+        if (rec.phone) cascadeSteps.push({ table: 'agent_clients', column: 'phone', value: rec.phone });
+        else if (rec.name || rec.full_name) cascadeSteps.push({ table: 'agent_clients', column: 'name', value: rec.name || rec.full_name, mode: 'ilike' });
+        cascadeMsgParts.push('any matching agent-queue row');
+    } else if (type === 'users') {
+        if (rec.phone) cascadeSteps.push({ table: 'clients', column: 'phone', value: rec.phone });
+        if (rec.email) cascadeSteps.push({ table: 'clients', column: 'email', value: rec.email });
+        cascadeMsgParts.push('any matching client rows');
+    }
+    let msg = `🗑️ DELETE ${meta.label.toUpperCase()} PERMANENTLY?\n\n"${title}"\n\n`;
+    if (cascadeMsgParts.length) msg += `This will also remove:\n• ${cascadeMsgParts.join('\n• ')}\n\n`;
+    msg += `Cannot be undone.`;
+    if (!confirm(msg)) return;
+    if (!confirm(`Are you absolutely sure?\n\nFinal confirmation for: ${title}`)) return;
+
+    const container = type === 'agents' ? $('listAgents') : type === 'businesses' ? $('listBusinesses') : type === 'clients' ? $('listClients') : $('listUsers');
+    let rowEl = null;
+    if (container) { rowEl = container.querySelector(`[data-row-id="${safeId(id)}"]`); if (rowEl) rowEl.classList.add('deleting'); }
+    const listBefore = getAccountList(type).slice();
+    setAccountList(type, listBefore.filter(r => String(r.id) !== String(id)));
+    renderAccountList(type); updateKPIs();
+
+    try {
+        for (const step of cascadeSteps) {
+            if (!step.value) continue;
+            try {
+                let q = sb.from(step.table).delete();
+                q = step.mode === 'ilike' ? q.ilike(step.column, step.value) : q.eq(step.column, step.value);
+                const { error } = await q;
+                if (error) console.warn(`⚠️ cascade ${step.table}.${step.column} failed:`, error.message);
+            } catch (e) { console.warn(`⚠️ cascade ${step.table} threw:`, e); }
+        }
+        const { error } = await sb.from(meta.table).delete().eq('id', id);
+        if (error) throw error;
+        showToast(`🗑️ ${meta.label} deleted: ${title}`, 'success', 3600);
+        touchLastUpdated();
+    } catch (e) {
+        logError('deleteAccount', e);
+        setAccountList(type, listBefore); renderAccountList(type); updateKPIs();
+        if (rowEl) rowEl.classList.remove('deleting');
+        showToast('❌ Delete failed: ' + (e.message || 'unknown error'), 'error', 5000);
+    }
+}
+
+async function deleteRecord(table, id, label) {
+    if (!sb) { showToast('❌ Supabase not configured', 'error'); return; }
+    if (!confirm(`🗑️ DELETE ${label} PERMANENTLY?\n\nCannot be undone.`)) return;
+    try {
+        const { error } = await sb.from(table).delete().eq('id', id);
+        if (error) throw error;
+        if (table === 'complaints') { State.complaints = State.complaints.filter(c => String(c.id) !== String(id)); renderComplaints(val('searchComplaints')); }
+        else if (table === 'chat_messages') {
+            State.chat = (State.chat || []).filter(c => String(c.id) !== String(id));
+            renderChat();
+        }
+        else if (table === 'transactions') { State.transactions = State.transactions.filter(t => String(t.id) !== String(id)); renderTransactions(val('searchTx')); }
+        else if (table === 'paybacks') { State.paybacks = State.paybacks.filter(p => String(p.id) !== String(id)); renderPaybacks(val('searchPaybacks')); }
+        updateKPIs();
+        showToast(`🗑️ ${label} deleted`, 'success', 3000);
+        touchLastUpdated();
+    } catch (e) { logError('deleteRecord:' + table, e); showToast('❌ Delete failed: ' + (e.message || 'unknown error'), 'error', 4800); }
+}
+
+async function deleteAgentClient(id) {
+    if (!sb) { showToast('❌ Supabase not configured', 'error'); return; }
+    const c = State.agentClients.find(x => String(x.id) === String(id));
+    if (!c) { showToast('❌ Client not found', 'error'); return; }
+    const name = c.name || '(no name)';
+    if (!confirm(`🗑️ DELETE CLIENT PERMANENTLY?\n\n"${name}" · ${c.phone || 'no phone'}\n\nCannot be undone.`)) return;
+    const btn = document.querySelector(`button[onclick*="deleteAgentClient('${safeId(id)}')"]`);
+    if (btn) btn.classList.add('busy');
+    try {
+        const { error: e1 } = await sb.from('agent_clients').delete().eq('id', id);
+        if (e1) console.warn('⚠️ queue delete failed:', e1.message);
+        if (c.phone) { try { await sb.from('clients').delete().eq('phone', c.phone); } catch (e) { } }
+        if (c.name) { try { await sb.from('clients').delete().ilike('name', c.name); } catch (e) { } }
+        State.agentClients = State.agentClients.filter(x => String(x.id) !== String(id));
+        renderAgentClients(val('searchAgentClients'));
+        State.clients = await fetchClients(); renderClients(val('searchClients'));
+        updateKPIs();
+        showToast(`🗑️ Client removed: ${name}`, 'success', 3400);
+        touchLastUpdated();
+    } catch (e) {
+        logError('deleteAgentClient', e);
+        showToast('❌ Delete failed: ' + (e.message || 'unknown error'), 'error', 4800);
+        if (btn) btn.classList.remove('busy');
+    }
+}
+
+function pick(obj, keys, fallback = '') {
+    if (!obj || typeof obj !== 'object') return fallback;
+    for (let i = 0; i < keys.length; i++) {
+        const v = obj[keys[i]];
+        if (v !== undefined && v !== null && v !== '') return v;
+    }
+    return fallback;
+}
+function normalizeType(t) {
+    const s = safeLower(t).trim();
+    const map = {
+        agent: 'agent', agents: 'agent', 'agent-application': 'agent',
+        business: 'business', businesses: 'business', shop: 'business', store: 'business',
+        product: 'product', products: 'product', item: 'product', goods: 'product',
+        service: 'service', services: 'service',
+        client: 'client', clients: 'client', customer: 'client'
+    };
+    return map[s] || s;
+}
+
+/* ============ FETCHERS ============ */
+async function fetchTransactions() {
+    TX_LAST_ERROR = null;
+    if (!sb) { TX_LAST_ERROR = 'Supabase not configured'; return []; }
+    const projection = 'id, tx_id, provider_tx_id, transfer_code, sender_name, sender_phone, agent_name, agent_phone, client_name, client_phone, amount, charge, gst, total, currency, mode, status, created_at';
+    try {
+        const { data, error } = await withTimeout(sb.from('transactions').select(projection).order('created_at', { ascending: false }).limit(100), 5000, 'transactions');
+        if (error) throw error;
+        return data || [];
+    } catch (e) { logError('fetchTransactions(projected)', e); }
+    try {
+        const { data, error } = await withTimeout(sb.from('transactions').select('*').limit(100), 4500, 'tx-fallback');
+        if (error) throw error;
+        return (data || []).slice().sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+    } catch (e) {
+        logError('fetchTransactions(wildcard)', e);
+        TX_LAST_ERROR = e.message || 'query failed';
+        return [];
+    }
+}
+async function fetchAgents() {
+    if (!sb) return [];
+    try {
+        const { data, error } = await withTimeout(sb.from('agents').select('*').order('created_at', { ascending: false }).limit(500), 6000, 'agents');
+        if (!error && Array.isArray(data) && data.length > 0) return data;
+    } catch (e) { }
+    try {
+        const { data, error } = await withTimeout(sb.from('agents').select('*').limit(500), 6000, 'agents-fallback');
+        if (error) throw error;
+        return data || [];
+    } catch (e2) { console.warn('fetchAgents failed:', e2?.message); return []; }
+}
+async function fetchComplaints() {
+    if (!sb) return [];
+    try { const { data, error } = await withTimeout(sb.from('complaints').select('*').order('created_at', { ascending: false }).limit(500), 6000, 'complaints'); if (error) throw error; return data || []; } catch (e) { return []; }
+}
+async function fetchPaybacks() {
+    if (!sb) return [];
+    try { const { data, error } = await withTimeout(sb.from('paybacks').select('*').order('created_at', { ascending: false }).limit(500), 6000, 'paybacks'); if (error) throw error; return data || []; } catch (e) { return []; }
+}
+async function fetchSubscribers() {
+    if (!sb) return [];
+    try { const { data, error } = await withTimeout(sb.from('subscribers').select('*').order('subscribed_at', { ascending: false }).limit(500), 6000, 'subs'); if (error) throw error; return data || []; } catch (e) { return []; }
+}
+async function fetchChat() {
+    if (!sb) return null;
+    try {
+        const { data, error } = await withTimeout(
+            sb.from('chat_messages').select('*').order('created_at', { ascending: true }).limit(500),
+            6000, 'chat'
+        );
+        if (!error && Array.isArray(data)) return data;
+    } catch (e) {
+        console.warn('fetchChat (ordered) failed:', e && e.message);
+    }
+    try {
+        const { data, error } = await withTimeout(
+            sb.from('chat_messages').select('*').limit(500),
+            6000, 'chat-fallback'
+        );
+        if (!error && Array.isArray(data)) {
+            return data.slice().sort(function (a, b) {
+                return String(a.created_at || '').localeCompare(String(b.created_at || ''));
+            });
+        }
+    } catch (e2) {
+        console.warn('fetchChat (fallback) failed:', e2 && e2.message);
+    }
+    return null;
+}
+async function fetchPendingItems() {
+    if (!sb) return [];
+    try { const { data, error } = await withTimeout(sb.from('pending_items').select('*').order('submitted_at', { ascending: false }).limit(500), 6000, 'pending'); if (error) throw error; return data || []; } catch (e) { return []; }
+}
+async function fetchAgentClients() {
+    if (!sb) return [];
+    try { const { data, error } = await withTimeout(sb.from('agent_clients').select('*').order('created_at', { ascending: false }).limit(500), 6000, 'agent_clients'); if (error) throw error; return data || []; } catch (e) { return []; }
+}
+async function safeFetch(table, orderCol = 'created_at', limit = 500) {
+    if (!sb) return [];
+    try {
+        let q = sb.from(table).select('*');
+        if (orderCol) q = q.order(orderCol, { ascending: false });
+        if (limit) q = q.limit(limit);
+        const { data, error } = await withTimeout(q, 6000, table);
+        if (error) throw error;
+        return data || [];
+    } catch (e) {
+        try {
+            const { data, error } = await withTimeout(sb.from(table).select('*').limit(limit || 500), 6000, table + '-fb');
+            if (error) throw error;
+            return data || [];
+        } catch (e2) { return []; }
+    }
+}
+const fetchBusinesses = () => safeFetch('businesses');
+const fetchClients    = () => safeFetch('clients');
+
+const USER_SOURCES = ['users', 'profiles', 'app_users', 'registrations', 'customers', 'accounts', 'user_profiles', 'members'];
+let USER_RESOLVED_SOURCE = null;
+
+async function fetchUsers() {
+    if (!sb) return [];
+    async function attempt(table, ms) {
+        try {
+            const { data, error } = await withTimeout(sb.from(table).select('*').limit(2000), ms, table + '-fetch');
+            if (error) return { ok: false, error, data: null };
+            if (!Array.isArray(data)) return { ok: false, error: new Error('not an array'), data: null };
+            return { ok: true, error: null, data };
+        } catch (e) { return { ok: false, error: e, data: null }; }
+    }
+    if (USER_RESOLVED_SOURCE) {
+        const r = await attempt(USER_RESOLVED_SOURCE, 10000);
+        if (r.ok) { setUserSourceInfo(USER_RESOLVED_SOURCE, r.data.length); return r.data; }
+        if (r.error && /timed out/i.test(String(r.error.message || ''))) {
+            console.warn(`⏳ ${USER_RESOLVED_SOURCE} slow (kept as source)`);
+            setUserSourceInfo(USER_RESOLVED_SOURCE + ' (slow)', '—');
+            return [];
+        }
+        USER_RESOLVED_SOURCE = null;
+    }
+    let emptyCandidate = null;
+    for (const table of ['users'].concat(USER_SOURCES.filter(t => t !== 'users'))) {
+        const isUsers = table === 'users';
+        const r = await attempt(table, isUsers ? 12000 : 6000);
+        if (r.ok && r.data.length > 0) { USER_RESOLVED_SOURCE = table; setUserSourceInfo(table, r.data.length); return r.data; }
+        if (r.ok && r.data.length === 0) { if (!emptyCandidate) emptyCandidate = table; continue; }
+        const msg = String(r.error?.message || '');
+        if (/does not exist/i.test(msg)) continue;
+        if (/timed out/i.test(msg) && isUsers) { USER_RESOLVED_SOURCE = 'users'; setUserSourceInfo('users (slow)', '—'); return []; }
+    }
+    if (emptyCandidate) { USER_RESOLVED_SOURCE = emptyCandidate; setUserSourceInfo(emptyCandidate, 0); return []; }
+    { const r = await attempt('all_registered_users', 8000); if (r.ok) { USER_RESOLVED_SOURCE = 'all_registered_users'; setUserSourceInfo('all_registered_users', r.data.length); return r.data; } }
+    try {
+        const { data, error } = await withTimeout(sb.rpc('list_registered_users'), 8000, 'rpc');
+        if (!error && Array.isArray(data)) { setUserSourceInfo('RPC:list_registered_users', data.length); return data; }
+    } catch (e) { }
+    setUserSourceInfo('unresolved', 0);
+    return [];
+}
+function setUserSourceInfo(source, count) {
+    const el = $('userSourceInfo'); if (!el) return;
+    el.style.display = 'inline-flex';
+    el.textContent = `🔎 Source: ${source} · ${count} row(s)`;
+}
+
+function accountActionButtons(type, rec) {
+    const id = safeId(rec.id);
+    const suspended = isSuspended(rec);
+    return `
+        <button class="btn-mini purple" onclick="openDirectChat('${type}','${id}')">💬 Chat</button>
+        <button class="btn-mini blue" onclick="showAccountDetail('${type}','${id}')">👁️ View</button>
+        ${suspended
+            ? `<button class="btn-mini green" onclick="toggleSuspend('${type}','${id}',false)">▶️ Restore</button>`
+            : `<button class="btn-mini orange" onclick="toggleSuspend('${type}','${id}',true)">⏸️ Suspend</button>`}
+        <button class="btn-mini red" data-del="${id}" onclick="deleteAccount('${type}','${id}')">🗑️ Delete</button>
+    `;
+}
+function suspendedBadge(rec) {
+    if (!isSuspended(rec)) return '';
+    if (rec.suspension_label) {
+        const reason = getReason(rec.suspension_reason);
+        return `<span class="badge red" title="${escapeHTML(rec.suspension_notes || reason.desc)}">⏸ ${escapeHTML(reason.icon)} ${escapeHTML(rec.suspension_label)}</span>`;
+    }
+    return `<span class="badge red">⏸ Suspended</span>`;
+}
+
+/* Renderers (unchanged from original except chat button lives in accountActionButtons) */
+function renderTransactions(filter = '') {
+    const wrap = $('listTx'); if (!wrap) return;
+    const q = safeLower(filter);
+    let items = Array.isArray(State.transactions) ? State.transactions : [];
+    if (q) items = items.filter(t =>
+        safeLower(t.tx_id).includes(q) || safeLower(t.sender_name).includes(q) ||
+        safeLower(t.sender_phone).includes(q) || safeLower(t.agent_name).includes(q) ||
+        safeLower(t.provider_tx_id).includes(q)
+    );
+    if (!items.length) {
+        if (TX_LAST_ERROR) {
+            wrap.innerHTML = `<div class="empty-state"><div class="em-icon">⚠️</div>Could not load.<br><span style="font-size:0.72rem;color:#bdc3c7;">${escapeHTML(TX_LAST_ERROR)}</span><br><br><button class="btn-mini blue" id="retryTxInline">🔄 Try again</button></div>`;
+            on('retryTxInline', 'click', () => { const b = $('refreshTx'); if (b) b.click(); });
+            setTxLoadFailed('Failed');
+        } else {
+            wrap.innerHTML = `<div class="empty-state"><div class="em-icon">💳</div>No transactions${q ? ' for "'+escapeHTML(filter)+'"' : ''}.</div>`;
+            setTxLoadStatus('Empty', true);
+        }
+        return;
+    }
+    wrap.innerHTML = items.map(t => {
+        const mode = safeLower(t.mode).includes('int') ? 'blue' : 'green';
+        const tid = safeId(t.id);
+        return `<div class="list-row" data-row-id="${tid}">
+            <div class="row-avatar">${escapeHTML(String(t.currency || 'SLL').substring(0,3))}</div>
+            <div class="row-main">
+                <div class="row-title">${escapeHTML(t.tx_id || 'TX')}</div>
+                <div class="row-sub">👤 ${escapeHTML(t.sender_name || '—')} (${escapeHTML(t.sender_phone || '—')}) → 🏪 ${escapeHTML(t.agent_name || '—')}</div>
+                <div class="row-sub" style="margin-top:3px;">
+                    <span class="badge ${mode}">${escapeHTML(t.mode || 'Local')}</span>
+                    <span class="badge blue">${escapeHTML(t.currency || '—')}</span>
+                    <span class="badge gray">${shortDate(t.created_at)}</span>
+                </div>
+            </div>
+            <div class="row-amount">${escapeHTML(t.currency || '')} ${fmtMoney(t.total)}</div>
+            <div class="row-actions">
+                <button class="btn-mini blue" onclick="showTxDetail('${tid}')">👁️ View</button>
+                <button class="btn-mini red" onclick="deleteRecord('transactions','${tid}','Transaction ${escapeHTML(t.tx_id || '')}')">🗑️ Delete</button>
+            </div>
+        </div>`;
+    }).join('');
+    setTxLoadStatus(`${items.length} loaded`, true);
+}
+
+function renderAgents(filter = '') {
+    const wrap = $('listAgents'); if (!wrap) return;
+    const q = safeLower(filter);
+    const statusF = val('agentStatusFilter') || 'all';
+    let items = Array.isArray(State.agents) ? State.agents : [];
+    if (statusF === 'active') items = items.filter(a => !isSuspended(a));
+    else if (statusF === 'suspended') items = items.filter(a => isSuspended(a));
+    if (q) items = items.filter(a =>
+        safeLower(a.business_name || a.businessName).includes(q) ||
+        safeLower(a.owner_name).includes(q) || safeLower(a.city).includes(q) ||
+        safeLower(a.country_code).includes(q) || safeLower(a.mobile_money).includes(q)
+    );
+    if (!items.length) { wrap.innerHTML = `<div class="empty-state"><div class="em-icon">🏢</div>No agents.</div>`; return; }
+    wrap.innerHTML = items.map(a => {
+        const suspended = isSuspended(a);
+        const name = a.business_name || a.businessName || 'Agent';
+        const initials = String(name).substring(0,2).toUpperCase();
+        return `<div class="list-row ${suspended ? 'suspended' : ''}" data-row-id="${safeId(a.id)}">
+            <div class="row-avatar ${suspended ? 'susp' : ''}">${escapeHTML(initials)}</div>
+            <div class="row-main">
+                <div class="row-title">${escapeHTML(name)}</div>
+                <div class="row-sub">👤 ${escapeHTML(a.owner_name || '—')} · 📍 ${escapeHTML(a.city || '—')} · ${escapeHTML(a.country_code || '—')}</div>
+                <div class="row-sub" style="margin-top:3px;">
+                    ${suspendedBadge(a)}
+                    <span class="badge ${a.approved ? 'green' : 'orange'}">${a.approved ? '✓ Approved' : '⏳ Pending'}</span>
+                    <span class="badge blue">💳 ${fmtMoney(a.collateral_limit || a.collateral_amount)}</span>
+                </div>
+            </div>
+            <div class="row-actions">${accountActionButtons('agents', a)}</div>
+        </div>`;
+    }).join('');
+}
+
+function renderBusinesses(filter = '') {
+    const wrap = $('listBusinesses'); if (!wrap) return;
+    const q = safeLower(filter);
+    const statusF = val('businessStatusFilter') || 'all';
+    let items = Array.isArray(State.businesses) ? State.businesses : [];
+    if (statusF === 'active') items = items.filter(b => !isSuspended(b));
+    else if (statusF === 'suspended') items = items.filter(b => isSuspended(b));
+    if (q) items = items.filter(b =>
+        safeLower(b.name || b.business_name).includes(q) ||
+        safeLower(b.contact).includes(q) ||
+        safeLower(b.city).includes(q) || safeLower(b.type).includes(q)
+    );
+    if (!items.length) { wrap.innerHTML = `<div class="empty-state"><div class="em-icon">🏪</div>No businesses.</div>`; return; }
+    wrap.innerHTML = items.map(b => {
+        const suspended = isSuspended(b);
+        return `<div class="list-row ${suspended ? 'suspended' : ''}" data-row-id="${safeId(b.id)}">
+            <div class="row-avatar ${suspended ? 'susp' : ''}" style="${suspended ? '' : 'background:#fef4e6;color:#c97e2a;'}">${escapeHTML(b.icon || b.emoji || '🏪')}</div>
+            <div class="row-main">
+                <div class="row-title">${escapeHTML(b.name || b.business_name || '—')}</div>
+                <div class="row-sub">📞 ${escapeHTML(b.contact || '—')} · 💳 ${escapeHTML(b.mobile_money || '—')}</div>
+                <div class="row-sub" style="margin-top:3px;">
+                    ${suspendedBadge(b)}
+                    <span class="badge blue">🏷️ ${escapeHTML(b.type || b.business_type || 'Other')}</span>
+                    <span class="badge gray">📍 ${escapeHTML(b.city || '—')}</span>
+                </div>
+            </div>
+            <div class="row-actions">
+                <button class="btn-mini purple" onclick="openEditBiz('${safeId(b.id)}')">✏️ Edit Biz</button>
+                ${accountActionButtons('businesses', b)}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderEditBiz(filter = '') {
+    const wrap = $('listEditBiz'); if (!wrap) return;
+    const q = safeLower(filter);
+    const countryF = val('editBizCountryFilter') || 'all';
+    let items = Array.isArray(State.businesses) ? State.businesses : [];
+    if (countryF !== 'all') items = items.filter(b => safeLower(b.country) === safeLower(countryF));
+    if (q) items = items.filter(b =>
+        safeLower(b.name || b.business_name).includes(q) ||
+        safeLower(b.contact).includes(q) ||
+        safeLower(b.mobile_money).includes(q) ||
+        safeLower(b.city).includes(q) ||
+        safeLower(b.country).includes(q) ||
+        safeLower(b.type).includes(q) ||
+        safeLower(b.pin).includes(q)
+    );
+    const info = $('editBizCountInfo');
+    if (info) info.innerHTML = `🏪 <strong>${items.length}</strong> of <strong>${(State.businesses || []).length}</strong> business(es)`;
+    if (!items.length) {
+        wrap.innerHTML = `<div class="empty-state"><div class="em-icon">✏️</div>No businesses match.</div>`;
+        return;
+    }
+    wrap.innerHTML = items.map(b => {
+        const suspended = isSuspended(b);
+        const goodsCount = (Array.isArray(b.goods) ? b.goods.length : 0);
+        const hasPin = !!b.pin;
+        return `<div class="list-row ${suspended ? 'suspended' : ''}" data-row-id="${safeId(b.id)}">
+            <div class="row-avatar ${suspended ? 'susp' : ''}" style="${suspended ? '' : 'background:#fef4e6;color:#c97e2a;'}">${escapeHTML(b.icon || '🏪')}</div>
+            <div class="row-main">
+                <div class="row-title">${escapeHTML(b.name || b.business_name || '—')}</div>
+                <div class="row-sub">📞 ${escapeHTML(b.contact || '—')} · 💳 ${escapeHTML(b.mobile_money || '—')}</div>
+                <div class="row-sub" style="margin-top:3px;">
+                    ${suspended ? '<span class="badge red">⏸ Suspended</span>' : '<span class="badge green">✅ Active</span>'}
+                    <span class="badge blue">🏷️ ${escapeHTML(b.type || b.business_type || 'Other')}</span>
+                    <span class="badge gray">📍 ${escapeHTML(b.city || '—')}</span>
+                    <span class="badge ${hasPin ? 'green' : 'orange'}">🔐 ${hasPin ? 'PIN set' : 'No PIN'}</span>
+                    <span class="badge purple">📦 ${goodsCount} item${goodsCount === 1 ? '' : 's'}</span>
+                </div>
+            </div>
+            <div class="row-actions">
+                <button class="btn-mini purple" onclick="openEditBiz('${safeId(b.id)}')">✏️ Edit Biz</button>
+                <button class="btn-mini blue" onclick="showAccountDetail('businesses','${safeId(b.id)}')">👁️ View</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderClients(filter = '') {
+    const wrap = $('listClients'); if (!wrap) return;
+    const q = safeLower(filter);
+    const statusF = val('clientStatusFilter') || 'all';
+    let items = Array.isArray(State.clients) ? State.clients : [];
+    if (statusF === 'active') items = items.filter(c => !isSuspended(c));
+    else if (statusF === 'suspended') items = items.filter(c => isSuspended(c));
+    if (q) items = items.filter(c =>
+        safeLower(c.name || c.full_name).includes(q) ||
+        safeLower(c.phone).includes(q) || safeLower(c.city).includes(q)
+    );
+    if (!items.length) { wrap.innerHTML = `<div class="empty-state"><div class="em-icon">👥</div>No clients.</div>`; return; }
+    wrap.innerHTML = items.map(c => {
+        const suspended = isSuspended(c);
+        const displayName = c.name || c.full_name || '—';
+        return `<div class="list-row ${suspended ? 'suspended' : ''}" data-row-id="${safeId(c.id)}">
+            <div class="row-avatar ${suspended ? 'susp' : ''}">👤</div>
+            <div class="row-main">
+                <div class="row-title">${escapeHTML(displayName)}</div>
+                <div class="row-sub">📱 ${escapeHTML(c.phone || '—')} · 📍 ${escapeHTML(c.city || '—')}</div>
+                <div class="row-sub" style="margin-top:3px;">
+                    ${suspendedBadge(c)}
+                    ${c.agent_id ? `<span class="badge blue">Agent: ${escapeHTML(String(c.agent_id).substring(0,12))}</span>` : `<span class="badge purple">Direct</span>`}
+                    <span class="badge gray">${shortDate(c.created_at)}</span>
+                </div>
+            </div>
+            <div class="row-actions">${accountActionButtons('clients', c)}</div>
+        </div>`;
+    }).join('');
+}
+
+function renderUsers(filter = '') {
+    const wrap = $('listUsers'); if (!wrap) return;
+    const q = safeLower(filter);
+    const statusF = val('userStatusFilter') || 'all';
+    const roleF   = val('userRoleFilter') || 'all';
+    let items = Array.isArray(State.users) ? State.users : [];
+    if (statusF === 'active') items = items.filter(u => !isSuspended(u));
+    else if (statusF === 'suspended') items = items.filter(u => isSuspended(u));
+    if (roleF !== 'all') items = items.filter(u => safeLower(u.role || 'user') === roleF);
+    if (q) items = items.filter(u => {
+        const name = safeLower(u.full_name || u.name || u.username);
+        return name.includes(q) || safeLower(u.email).includes(q) ||
+            safeLower(u.phone).includes(q) || safeLower(u.country).includes(q) ||
+            safeLower(u.role).includes(q);
+    });
+    const info = $('userCounts');
+    if (info) {
+        const total = (State.users || []).length;
+        const suspended = (State.users || []).filter(isSuspended).length;
+        info.innerHTML = `👥 <strong>${total}</strong> total · ✅ <strong>${total - suspended}</strong> active · ⏸️ <strong>${suspended}</strong> suspended`;
+    }
+    if (!items.length) {
+        wrap.innerHTML = `<div class="empty-state"><div class="em-icon">🧑</div>No users${q ? ' for "'+escapeHTML(filter)+'"' : ''}.<br><span style="font-size:0.75rem; color:#bdc3c7;">Try 🩺 Diagnose Users in the top bar.</span></div>`;
+        return;
+    }
+    wrap.innerHTML = items.map(u => {
+        const suspended = isSuspended(u);
+        const name = u.full_name || u.name || u.username || u.email || '—';
+        const initials = String(name).substring(0,2).toUpperCase();
+        return `<div class="list-row ${suspended ? 'suspended' : ''}" data-row-id="${safeId(u.id)}">
+            <div class="row-avatar ${suspended ? 'susp' : ''}">${escapeHTML(initials)}</div>
+            <div class="row-main">
+                <div class="row-title">${escapeHTML(name)}</div>
+                <div class="row-sub">${u.email ? `📧 ${escapeHTML(u.email)}` : ''}${u.phone ? ` · 📱 ${escapeHTML(u.phone)}` : ''}</div>
+                <div class="row-sub" style="margin-top:3px;">
+                    ${suspendedBadge(u)}
+                    ${u.role ? `<span class="badge purple">${escapeHTML(u.role)}</span>` : `<span class="badge purple">user</span>`}
+                    ${u.country ? `<span class="badge gray">🌍 ${escapeHTML(u.country)}</span>` : ''}
+                    <span class="badge gray">${shortDate(u.created_at)}</span>
+                </div>
+            </div>
+            <div class="row-actions">${accountActionButtons('users', u)}</div>
+        </div>`;
+    }).join('');
+}
+
+function renderComplaints(filter = '') {
+    const wrap = $('listComplaints'); if (!wrap) return;
+    const q = safeLower(filter);
+    let items = Array.isArray(State.complaints) ? State.complaints : [];
+    if (q) items = items.filter(c =>
+        safeLower(c.name).includes(q) || safeLower(c.phone).includes(q) || safeLower(c.category).includes(q)
+    );
+    if (!items.length) { wrap.innerHTML = `<div class="empty-state"><div class="em-icon">🚨</div>No complaints.</div>`; return; }
+    wrap.innerHTML = items.map(c => {
+        const status = safeLower(c.status || 'pending');
+        const statusClass = status === 'resolved' ? 'green' : (status === 'reviewing' ? 'orange' : 'red');
+        const cid = safeId(c.id);
+        return `<div class="list-row" data-row-id="${cid}">
+            <div class="row-avatar" style="background:#fdeaea; color:#c0392b;">🚨</div>
+            <div class="row-main">
+                <div class="row-title">${escapeHTML(c.category || 'Complaint')}</div>
+                <div class="row-sub">👤 ${escapeHTML(c.name || '—')} · 📱 ${escapeHTML(c.phone || '—')}</div>
+                <div class="row-sub" style="margin-top:3px; color:#555;">${escapeHTML(String(c.details || '').substring(0, 120))}${String(c.details||'').length > 120 ? '…' : ''}</div>
+                <div class="row-sub" style="margin-top:3px;">
+                    <span class="badge ${statusClass}">${status.toUpperCase()}</span>
+                    <span class="badge gray">${shortDate(c.created_at)}</span>
+                </div>
+            </div>
+            <div class="row-actions" style="flex-direction:column; gap:4px;">
+                <select class="status-select ${status}" onchange="changeComplaintStatus('${cid}', this.value)">
+                    <option value="pending" ${status==='pending'?'selected':''}>Pending</option>
+                    <option value="reviewing" ${status==='reviewing'?'selected':''}>Reviewing</option>
+                    <option value="resolved" ${status==='resolved'?'selected':''}>Resolved</option>
+                </select>
+                <button class="btn-mini blue" onclick="showComplaintDetail('${cid}')">👁️ View</button>
+                <button class="btn-mini red" onclick="deleteRecord('complaints','${cid}','Complaint')">🗑️ Delete</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderPending(filter = '') {
+    const wrap = $('listPending'); if (!wrap) return;
+    const q = safeLower(filter);
+    const typeFilter = val('pendingTypeFilter') || 'all';
+    let items = (Array.isArray(State.pendingItems) ? State.pendingItems : []).slice();
+    if (!State.showReviewed) items = items.filter(p => (p.status || 'pending') === 'pending');
+    if (typeFilter !== 'all') items = items.filter(p => normalizeType(p.type) === typeFilter);
+    if (q) items = items.filter(p => {
+        const d = asObj(p.data);
+        return safeLower(JSON.stringify(d)).includes(q) ||
+            safeLower(p.submitted_by).includes(q) ||
+            safeLower(p.country).includes(q);
+    });
+    const pendingCount = (State.pendingItems || []).filter(p => (p.status || 'pending') === 'pending').length;
+    const info = $('pendingCountInfo');
+    if (info) info.innerHTML = `⏳ <strong>${pendingCount}</strong> pending · 🗂️ <strong>${(State.pendingItems||[]).length - pendingCount}</strong> reviewed`;
+    if (!items.length) { wrap.innerHTML = `<div class="empty-state"><div class="em-icon">✅</div>No approvals.</div>`; return; }
+    wrap.innerHTML = items.map(p => {
+        const d = asObj(p.data);
+        const status = safeLower(p.status || 'pending');
+        const statusClass = status === 'approved' ? 'green' : (status === 'rejected' ? 'red' : 'orange');
+        const type = normalizeType(p.type);
+        const typeIcon = { agent:'🧑‍💼', business:'🏪', product:'📦', service:'🛠️', client:'👥' }[type] || '📄';
+        const title = pick(d, ['businessName','business_name','name','title'], '(untitled)');
+        const pid = safeId(p.id);
+        return `<div class="list-row" data-row-id="${pid}">
+            <div class="row-avatar">${typeIcon}</div>
+            <div class="row-main">
+                <div class="row-title">${escapeHTML(title)}</div>
+                <div class="row-sub">Type: ${escapeHTML(type || '—')} · 👤 ${escapeHTML(p.submitted_by || '—')}</div>
+                <div class="row-sub" style="margin-top:3px;">
+                    <span class="badge ${statusClass}">${status.toUpperCase()}</span>
+                    <span class="badge gray">${shortDate(p.submitted_at || p.created_at)}</span>
+                </div>
+            </div>
+            <div class="row-actions">
+                ${status === 'pending' ? `
+                    <button class="btn-mini green" onclick="approvePendingItem('${pid}')">✅ Approve</button>
+                    <button class="btn-mini red" onclick="rejectPendingItem('${pid}')">❌ Reject</button>
+                ` : ''}
+                <button class="btn-mini blue" onclick="showPendingDetail('${pid}')">👁️ View</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderAgentClients(filter = '') {
+    const wrap = $('listAgentClients'); if (!wrap) return;
+    const q = safeLower(filter);
+    let items = Array.isArray(State.agentClients) ? State.agentClients : [];
+    if (q) items = items.filter(c =>
+        safeLower(c.name).includes(q) ||
+        safeLower(c.phone).includes(q) ||
+        safeLower(c.agent_id).includes(q)
+    );
+    if (!items.length) { wrap.innerHTML = `<div class="empty-state"><div class="em-icon">👥</div>No agent clients.</div>`; return; }
+    wrap.innerHTML = items.map(c => {
+        const status = safeLower(c.status || 'pending');
+        const statusClass = status === 'approved' ? 'green' : (status === 'rejected' ? 'red' : 'orange');
+        const cid = safeId(c.id);
+        return `<div class="list-row" data-row-id="${cid}">
+            <div class="row-avatar" style="background:#e8f0f8; color:#1c6e8f;">👤</div>
+            <div class="row-main">
+                <div class="row-title">${escapeHTML(c.name || '—')}</div>
+                <div class="row-sub">📱 ${escapeHTML(c.phone || '—')} · 📍 ${escapeHTML(c.city || '—')}</div>
+                <div class="row-sub" style="margin-top:3px;">
+                    <span class="badge ${statusClass}">${status.toUpperCase()}</span>
+                    <span class="badge blue">Agent: ${escapeHTML(String(c.agent_id || '—').substring(0,14))}</span>
+                </div>
+            </div>
+            <div class="row-actions">
+                ${status === 'pending' ? `
+                    <button class="btn-mini green" onclick="approveClient('${cid}')">✅ Approve</button>
+                    <button class="btn-mini red" onclick="rejectClient('${cid}')">❌ Reject</button>
+                ` : ''}
+                <button class="btn-mini red" onclick="deleteAgentClient('${cid}')">🗑️ Delete</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderPaybacks(filter = '') {
+    const wrap = $('listPaybacks'); if (!wrap) return;
+    const q = safeLower(filter);
+    let items = Array.isArray(State.paybacks) ? State.paybacks : [];
+    if (q) items = items.filter(p =>
+        safeLower(p.agent_business_name).includes(q) ||
+        safeLower(p.agent_name).includes(q) ||
+        safeLower(p.provider_tx_id).includes(q)
+    );
+    if (!items.length) { wrap.innerHTML = `<div class="empty-state"><div class="em-icon">💰</div>No paybacks.</div>`; return; }
+    wrap.innerHTML = items.map(p => `
+        <div class="list-row" data-row-id="${safeId(p.id)}">
+            <div class="row-avatar" style="background:#fef4e6; color:#c97e2a;">💰</div>
+            <div class="row-main">
+                <div class="row-title">${escapeHTML(p.agent_business_name || '—')}</div>
+                <div class="row-sub">👤 ${escapeHTML(p.agent_name || '—')} · 🌍 ${escapeHTML(p.agent_nationality || '—')}</div>
+                <div class="row-sub" style="margin-top:3px;">
+                    <span class="badge orange">Cashed: ${fmtMoney(p.cashed_out_amount)}</span>
+                    <span class="badge green">Agent: ${fmtMoney(p.agent_commission)}</span>
+                </div>
+            </div>
+            <div class="row-amount" style="color:#e67e22;">+${fmtMoney(p.agent_commission)}</div>
+            <div class="row-actions">
+                <button class="btn-mini blue" onclick="showPaybackDetail('${safeId(p.id)}')">👁️ View</button>
+                <button class="btn-mini red" onclick="deleteRecord('paybacks','${safeId(p.id)}','PayBack')">🗑️ Delete</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderSubs(filter = '') {
+    const wrap = $('listSubs'); if (!wrap) return;
+    const q = safeLower(filter);
+    let items = Array.isArray(State.subscribers) ? State.subscribers : [];
+    if (q) items = items.filter(s => safeLower(s.email).includes(q));
+    if (!items.length) { wrap.innerHTML = `<div class="empty-state"><div class="em-icon">📧</div>No subscribers.</div>`; return; }
+    wrap.innerHTML = items.map(s => `
+        <div class="list-row" data-row-id="${safeId(s.id)}">
+            <div class="row-avatar" style="background:#f3eaf8; color:#8e44ad;">📧</div>
+            <div class="row-main">
+                <div class="row-title">${escapeHTML(s.email || '—')}</div>
+                <div class="row-sub">📅 ${fmtDate(s.subscribed_at)}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderChat() {
+    const wrap = $('chatLive'); if (!wrap) return;
+    const items = Array.isArray(State.chat) ? State.chat : [];
+    try {
+        const info = $('chatCountInfo');
+        if (info) info.innerHTML = `💬 <strong>${items.length}</strong> message(s) in memory`;
+    } catch (e) { }
+    if (!items.length) {
+        wrap.innerHTML = `<div class="empty-state">
+            <div class="em-icon">💬</div>
+            Waiting for messages…
+            <div style="font-size:0.7rem;color:#bdc3c7;margin-top:6px;">If you know there are messages, tap <strong>🩺 Diagnose Chat</strong> above.</div>
+        </div>`;
+        return;
+    }
+    const seen = new Set();
+    const dedup = items.filter(function (m) {
+        const id = m && (m.id != null ? String(m.id) : null);
+        if (id) { if (seen.has(id)) return false; seen.add(id); }
+        return true;
+    });
+    const html = dedup.slice(-100).map(function (m) {
+        if (!m) return '';
+        let raw = '';
+        if (m.message != null && String(m.message).length > 0) raw = String(m.message);
+        else if (m.body != null && String(m.body).length > 0) raw = String(m.body);
+        else if (m.text != null && String(m.text).length > 0) raw = String(m.text);
+        else raw = '(empty)';
+
+        let iconFor = null, bubbleColor = '';
+        if (raw.indexOf('[img]') === 0 || raw.indexOf('[image]') === 0) {
+            iconFor = '🖼️';
+            bubbleColor = 'border-left-color:#8e44ad;background:#faf7fd;';
+        } else if (raw.indexOf('[audio]') === 0) {
+            iconFor = '🎙️';
+            bubbleColor = 'border-left-color:#16a085;background:#f3faf8;';
+        } else if (raw.indexOf('[video]') === 0) {
+            iconFor = '📹';
+            bubbleColor = 'border-left-color:#e67e22;background:#fffaf3;';
+        }
+        if (raw.length > 900) raw = raw.slice(0, 900) + '…';
+
+        return '<div class="chat-bubble" style="' + bubbleColor + '">'
+            + '<button class="chat-del-btn" onclick="deleteRecord(\'chat_messages\',\'' + safeId(m.id) + '\',\'Chat message\')" title="Delete">✕</button>'
+            + '<span class="cb-name">' + escapeHTML(m.sender_name || m.sender_key || 'Anonymous') + '</span>'
+            + '<span class="cb-time">' + shortDate(m.created_at) + '</span>'
+            + '<div class="cb-msg">' + (iconFor ? iconFor + ' ' : '') + escapeHTML(raw) + '</div>'
+            + '</div>';
+    }).join('');
+    wrap.innerHTML = html || `<div class="empty-state"><div class="em-icon">💬</div>Waiting for messages…</div>`;
+    wrap.scrollTop = wrap.scrollHeight;
+}
+
+function openModal(title, bodyHTML, actionsHTML = '') {
+    $('modalTitle').textContent = title;
+    $('modalBody').innerHTML = bodyHTML;
+    const act = $('modalActions');
+    if (actionsHTML) { act.innerHTML = actionsHTML; act.style.display = 'flex'; }
+    else { act.innerHTML = ''; act.style.display = 'none'; }
+    $('detailModal').classList.add('open');
+}
+function closeModal() {
+    $('detailModal').classList.remove('open');
+    $('modalActions').style.display = 'none'; $('modalActions').innerHTML = '';
+}
+function di(label, value, full = false, cls = '') {
+    return `<div class="detail-item ${full ? 'full' : ''} ${cls}">
+        <div class="di-label">${escapeHTML(label)}</div>
+        <div class="di-value">${escapeHTML(String(value ?? '—'))}</div>
+    </div>`;
+}
+
+function showAccountDetail(type, id) {
+    const rec = getAccountList(type).find(r => String(r.id) === String(id));
+    if (!rec) { showToast('❌ Account not found', 'error'); return; }
+    const meta = ACCOUNT_TABLES[type] || { label: 'Account', emoji: '📋' };
+    const suspended = isSuspended(rec);
+    let html = `<div class="detail-item full ${suspended ? 'danger' : 'info'}">
+        <div class="di-label">${suspended ? 'Suspended' : 'Active'}</div>
+        <div class="di-value">${suspended ? '⏸ Activity halted' : '✅ Full access'}</div>
+    </div>`;
+    if (suspended) {
+        const reason = rec.suspension_reason ? getReason(rec.suspension_reason) : null;
+        html += di('Violation Reason', reason ? `${reason.icon} ${reason.label}` : (rec.suspension_label || 'Not recorded'), true);
+        if (rec.suspension_notes) html += di('Notes', rec.suspension_notes, true);
+    }
+    Object.keys(rec).forEach(k => {
+        if (k.startsWith('_') || k === 'suspension_notes') return;
+        let v = rec[k];
+        if (v && typeof v === 'object') v = JSON.stringify(v);
+        if (k === 'password' || k === 'pin') v = v ? '••••••' : '—';
+        html += di(k, (v === null || v === undefined || v === '') ? '—' : v, String(v ?? '').length > 45);
+    });
+    const sid = safeId(id);
+    const actions = `
+        ${type === 'businesses' ? `<button class="btn-mini purple" onclick="closeModal(); setTimeout(()=>openEditBiz('${sid}'),120);">✏️ Edit Biz</button>` : ''}
+        <button class="btn-mini purple" onclick="closeModal(); setTimeout(()=>openDirectChat('${type}','${sid}'),120);">💬 Chat</button>
+        ${suspended
+            ? `<button class="btn-mini green" onclick="toggleSuspend('${type}','${sid}',false); closeModal();">▶️ Restore</button>`
+            : `<button class="btn-mini orange" onclick="closeModal(); setTimeout(()=>toggleSuspend('${type}','${sid}',true),120);">⏸️ Suspend</button>`}
+        <button class="btn-mini red" onclick="closeModal(); setTimeout(()=>deleteAccount('${type}','${sid}'),120);">🗑️ Delete</button>
+    `;
+    openModal(`${meta.emoji} ${meta.label} Details`, html, actions);
+}
+
+function showTxDetail(id) {
+    const t = (State.transactions || []).find(x => String(x.id) === String(id));
+    if (!t) return;
+    const html = `
+        ${di('TX ID', t.tx_id)} ${di('Provider TX ID', t.provider_tx_id)}
+        ${di('Transfer Code', t.transfer_code)} ${di('Status', t.status || 'confirmed')}
+        ${di('Mode', t.mode)} ${di('Currency', t.currency)}
+        ${di('Sender', `${t.sender_name || '—'} (${t.sender_phone || '—'})`, true)}
+        ${di('Agent', t.agent_name)} ${di('Agent Phone', t.agent_phone)}
+        ${di('Base Amount', fmtMoney(t.amount))} ${di('Charge', fmtMoney(t.charge))}
+        ${di('GST', fmtMoney(t.gst))} ${di('Total', fmtMoney(t.total))}
+        ${di('Created At', fmtDate(t.created_at), true)}
+    `;
+    openModal('💳 Transaction Details', html,
+        `<button class="btn-mini red" onclick="deleteRecord('transactions','${safeId(t.id)}','Transaction'); closeModal();">🗑️ Delete</button>`);
+}
+function showComplaintDetail(id) {
+    const c = (State.complaints || []).find(x => String(x.id) === String(id));
+    if (!c) return;
+    openModal('🚨 Complaint', `
+        ${di('Category', c.category, true)} ${di('Status', c.status || 'pending')}
+        ${di('Name', c.name)} ${di('Phone', c.phone)}
+        ${di('Submitted', fmtDate(c.created_at))} ${di('Details', c.details, true)}
+    `, `<button class="btn-mini red" onclick="deleteRecord('complaints','${safeId(c.id)}','Complaint'); closeModal();">🗑️ Delete</button>`);
+}
+function showPaybackDetail(id) {
+    const p = (State.paybacks || []).find(x => String(x.id) === String(id));
+    if (!p) return;
+    openModal('💰 PayBack Details', `
+        ${di('Agent Business', p.agent_business_name, true)}
+        ${di('Agent Name', p.agent_name)} ${di('Nationality', p.agent_nationality)}
+        ${di('Provider TX ID', p.provider_tx_id, true)}
+        ${di('Cashed Out', fmtMoney(p.cashed_out_amount))} ${di('Commission', fmtMoney(p.agent_commission))}
+        ${di('Created At', fmtDate(p.created_at), true)}
+    `, `<button class="btn-mini red" onclick="deleteRecord('paybacks','${safeId(p.id)}','PayBack'); closeModal();">🗑️ Delete</button>`);
+}
+function showPendingDetail(id) {
+    const p = (State.pendingItems || []).find(x => String(x.id) === String(id));
+    if (!p) return;
+    const d = asObj(p.data);
+    let html = di('Type', normalizeType(p.type), true);
+    html += di('Status', p.status || 'pending') + di('Submitted By', p.submitted_by || '—');
+    html += di('Country', p.country || '—') + di('Submitted', fmtDate(p.submitted_at || p.created_at));
+    Object.keys(d).forEach(k => {
+        let v = d[k];
+        if (v && typeof v === 'object') v = JSON.stringify(v);
+        html += di(k, v ?? '—', String(v ?? '').length > 45);
+    });
+    const actions = (p.status || 'pending') === 'pending'
+        ? `<button class="btn-mini green" onclick="approvePendingItem('${safeId(p.id)}'); closeModal();">✅ Approve</button>
+           <button class="btn-mini red" onclick="rejectPendingItem('${safeId(p.id)}'); closeModal();">❌ Reject</button>`
+        : '';
+    openModal('📄 Pending Item', html, actions);
+}
+
+/* Stubs (preserved — replace with your originals if needed) */
+async function approvePendingItem(id) { showToast('✅ Approve pending #' + id + ' — implement in your code', 'info', 3000); }
+async function rejectPendingItem(id) { showToast('❌ Reject pending #' + id + ' — implement in your code', 'info', 3000); }
+async function approveClient(id) { showToast('✅ Approve client #' + id + ' — implement in your code', 'info', 3000); }
+async function rejectClient(id) { showToast('❌ Reject client #' + id + ' — implement in your code', 'info', 3000); }
+async function changeComplaintStatus(id, status) {
+    const c = (State.complaints || []).find(x => String(x.id) === String(id));
+    if (!c) return;
+    const prev = c.status;
+    c.status = status;
+    renderComplaints(val('searchComplaints'));
+    try {
+        if (sb) {
+            const { error } = await sb.from('complaints').update({ status }).eq('id', id);
+            if (error) throw error;
+        }
+        showToast('✅ Status → ' + status, 'success', 2000);
+    } catch (e) {
+        c.status = prev; renderComplaints(val('searchComplaints'));
+        showToast('❌ Update failed: ' + (e.message || 'unknown'), 'error', 4000);
+    }
+}
+async function openEditBiz(id) { showToast('✏️ Edit Biz #' + id + ' — implement in your code', 'info', 3000); }
+
+/* =================================================================
+   DIRECT CHAT + BROADCAST MESSAGING (freeze-fixed)
+   ================================================================= */
+const ChatCtx = { type: null, id: null, recipientKey: null, recipientLabel: '', unsubscribe: null };
+const BroadcastCtx = { audience: null };
+let _sendingDirect = false;
+
+function accountDisplayName(type, rec) {
+    if (!rec) return 'Account';
+    if (type === 'agents')     return rec.business_name || rec.businessName || rec.owner_name || 'Agent';
+    if (type === 'businesses') return rec.name || rec.business_name || 'Business';
+    if (type === 'clients')    return rec.name || rec.full_name || 'Client';
+    if (type === 'users')      return rec.full_name || rec.name || rec.username || rec.email || rec.phone || 'User';
+    return 'Account';
+}
+function recipientKeyFor(type, id) { return `${type}:${id}`; }
+function recipientLabelFor(type, rec) {
+    const icon = { agents:'🏢', businesses:'🏪', clients:'👥', users:'🧑' }[type] || '📋';
+    return `${icon} ${accountDisplayName(type, rec)}`;
+}
+
+async function sendDirectMessage(recipientKey, recipientLabel, body, isNotification = false) {
+    if (!sb) throw new Error('Supabase not configured');
+    if (!recipientKey) throw new Error('Missing recipient');
+    const text = String(body || '').trim();
+    if (!text) throw new Error('Message is empty');
+
+    const payload = {
+        channel: 'direct',
+        recipient_key: recipientKey,
+        recipient_label: recipientLabel || recipientKey,
+        sender_name: 'Admin',
+        sender_key: 'admin',
+        admin_sender: true,
+        message: (isNotification ? '📢 ' : '') + text
+    };
+
+    let result;
+    try {
+        result = await sbTimeout(
+            sb.from('chat_messages').insert(payload).select().single(),
+            8000,
+            'sendDirectMessage'
+        );
+    } catch (e) {
+        const msg = String(e && (e.message || e.details || e) || '').toLowerCase();
+        if (msg.includes('column') || msg.includes('schema cache') || msg.includes('does not exist')) {
+            throw new Error('Database columns missing. Run the SQL migration (add channel, recipient_key, recipient_label, admin_sender to chat_messages) in Supabase.');
+        }
+        throw e;
     }
 
-    const serialNumber = finalDigits;
-    
-    setLoading(true);
-    hideError();
-
-    const result = await submitToFormspree(serialNumber);
-
-    if (result.success) {
-      // small delay for better UX
-      setTimeout(() => {
-        window.location.href = REDIRECT_URL;
-      }, 180);
-    } else {
-      setLoading(false);
-      let errorMsg = result.error || 'Submission failed. Please verify Formspree endpoint.';
-      showError(`⚠️ ${errorMsg}`);
-      serialInput.focus();
+    if (result.error) {
+        const msg = String(result.error.message || '').toLowerCase();
+        if (msg.includes('column') || msg.includes('schema cache') || msg.includes('does not exist')) {
+            throw new Error('Database columns missing. Run the SQL migration for chat_messages.');
+        }
+        throw result.error;
     }
-  });
+    return result.data;
+}
 
-  // Real-time input sanitization + instant counter + hide errors on valid edit
-  serialInput.addEventListener('input', () => {
-    sanitizeAndUpdate();
-    const currentVal = serialInput.value;
-    if (currentVal.length === 5 && /^\d{5}$/.test(currentVal)) {
-      hideError();
+async function fetchDirectThread(recipientKey) {
+    if (!sb) return [];
+    try {
+        const { data, error } = await withTimeout(
+            sb.from('chat_messages')
+              .select('*')
+              .eq('recipient_key', recipientKey)
+              .order('created_at', { ascending: true })
+              .limit(300),
+            8000, 'fetchDirectThread'
+        );
+        if (error) throw error;
+        return data || [];
+    } catch (e) {
+        console.warn('fetchDirectThread failed:', e && e.message);
+        return [];
     }
-  });
+}
 
-  // paste event to ensure full sanitization
-  serialInput.addEventListener('paste', () => {
-    setTimeout(() => {
-      sanitizeAndUpdate();
-      const afterPaste = serialInput.value;
-      if (afterPaste.length === 5 && /^\d{5}$/.test(afterPaste)) {
-        hideError();
-      }
-    }, 10);
-  });
-
-  // enforce numeric key filtering (optional: block non-digit before input)
-  serialInput.addEventListener('keydown', (e) => {
-    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
-    if (allowedKeys.includes(e.key)) return;
-    if (!/^\d$/.test(e.key) && !e.ctrlKey && !e.metaKey) {
-      e.preventDefault();
+function renderDirectThread(messages) {
+    const wrap = $('directChatBody'); if (!wrap) return;
+    if (!messages || !messages.length) {
+        wrap.innerHTML = `<div class="empty-state"><div class="em-icon">💬</div>No messages yet — say hello 👋</div>`;
+        return;
     }
-  });
+    wrap.innerHTML = messages.map(m => {
+        const fromAdmin = m.admin_sender === true || safeLower(m.sender_name) === 'admin';
+        const mine = fromAdmin ? 'margin-left:auto;background:#e8f0f8;border-left:none;border-right:3px solid #2c7da0;' : '';
+        return `<div class="chat-bubble" style="${mine}">
+            <span class="cb-name">${escapeHTML(fromAdmin ? '👑 Admin' : (m.sender_name || 'Account'))}</span>
+            <span class="cb-time">${shortDate(m.created_at)}</span>
+            <div class="cb-msg">${escapeHTML(m.message || '(empty)')}</div>
+        </div>`;
+    }).join('');
+    wrap.scrollTop = wrap.scrollHeight;
+}
 
-  // initial sanitize & counter
-  sanitizeAndUpdate();
+async function openDirectChat(type, id) {
+    const rec = getAccountList(type).find(r => String(r.id) === String(id));
+    if (!rec) { showToast('❌ Account not found', 'error'); return; }
 
-  // Optional console hints (no action needed)
-  if (FORMPREE_ENDPOINT === 'https://formspree.io/f/mojrrnoq') {
-    console.log('[Serial Form] Using provided Formspree endpoint.');
-  }
-  if (REDIRECT_URL === 'https://aminejalloh-io.github.io/staff_form/') {
-    console.log('[Serial Form] Redirect URL is set.');
-  }
+    ChatCtx.type = type;
+    ChatCtx.id = id;
+    ChatCtx.recipientKey = recipientKeyFor(type, id);
+    ChatCtx.recipientLabel = recipientLabelFor(type, rec);
+
+    $('directChatTitle').textContent = `💬 Chat with ${accountDisplayName(type, rec)}`;
+    $('directChatSubtitle').textContent = `${ChatCtx.recipientLabel} · key: ${ChatCtx.recipientKey}`;
+    $('directChatInput').value = '';
+    $('directChatBody').innerHTML = `<div class="empty-state"><div class="em-icon">💬</div>Loading thread…</div>`;
+    $('directChatModal').classList.add('open');
+
+    if (ChatCtx.unsubscribe) { try { ChatCtx.unsubscribe(); } catch (e) {} ChatCtx.unsubscribe = null; }
+
+    const initial = await fetchDirectThread(ChatCtx.recipientKey);
+    window.__directThreadCache = Array.isArray(initial) ? initial.slice() : [];
+    renderDirectThread(initial);
+
+    if (sb && sb.channel) {
+        try {
+            const ch = sb.channel('direct-chat-' + ChatCtx.recipientKey)
+                .on('postgres_changes',
+                    { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `recipient_key=eq.${ChatCtx.recipientKey}` },
+                    payload => {
+                        if (!payload || !payload.new) return;
+                        const exists = (window.__directThreadCache || []).some(x => String(x.id) === String(payload.new.id));
+                        if (exists) return;
+                        const msg = payload.new;
+                        const wrap = $('directChatBody'); if (!wrap) return;
+                        const empty = wrap.querySelector('.empty-state');
+                        if (empty) wrap.innerHTML = '';
+                        const fromAdmin = msg.admin_sender === true || safeLower(msg.sender_name) === 'admin';
+                        const mine = fromAdmin ? 'margin-left:auto;background:#e8f0f8;border-left:none;border-right:3px solid #2c7da0;' : '';
+                        const div = document.createElement('div');
+                        div.className = 'chat-bubble';
+                        div.style.cssText = mine;
+                        div.innerHTML = `<span class="cb-name">${escapeHTML(fromAdmin ? '👑 Admin' : (msg.sender_name || 'Account'))}</span>
+                            <span class="cb-time">${shortDate(msg.created_at)}</span>
+                            <div class="cb-msg">${escapeHTML(msg.message || '(empty)')}</div>`;
+                        wrap.appendChild(div);
+                        wrap.scrollTop = wrap.scrollHeight;
+                        if (Array.isArray(window.__directThreadCache)) window.__directThreadCache.push(msg);
+                    })
+                .subscribe();
+            ChatCtx.unsubscribe = () => { try { sb.removeChannel(ch); } catch (e) {} };
+        } catch (e) { console.warn('direct chat realtime subscribe failed:', e); }
+    }
+
+    setTimeout(() => { const inp = $('directChatInput'); if (inp) inp.focus(); }, 200);
+}
+
+async function sendFromDirectChat() {
+    if (_sendingDirect) return;
+    const inp = $('directChatInput');
+    if (!inp) return;
+    const text = inp.value.trim();
+    if (!text) return;
+    if (!ChatCtx.recipientKey) { showToast('❌ No recipient selected', 'error'); return; }
+
+    _sendingDirect = true;
+    const btn = $('directChatSend');
+    const originalText = btn ? btn.textContent : '';
+    if (btn) { btn.classList.add('busy'); btn.disabled = true; btn.textContent = '⏳ Sending…'; }
+
+    try {
+        await sendDirectMessage(ChatCtx.recipientKey, ChatCtx.recipientLabel, text);
+        inp.value = '';
+        showToast('📤 Sent', 'success', 1600);
+
+        // Optimistic bubble
+        const wrap = $('directChatBody');
+        if (wrap) {
+            const empty = wrap.querySelector('.empty-state');
+            if (empty) wrap.innerHTML = '';
+            const div = document.createElement('div');
+            div.className = 'chat-bubble';
+            div.style.cssText = 'margin-left:auto;background:#e8f0f8;border-left:none;border-right:3px solid #2c7da0;';
+            div.innerHTML =
+                '<span class="cb-name">👑 Admin</span>' +
+                '<span class="cb-time">just now</span>' +
+                '<div class="cb-msg">' + escapeHTML(text) + '</div>';
+            wrap.appendChild(div);
+            wrap.scrollTop = wrap.scrollHeight;
+        }
+
+        if (!ChatCtx.unsubscribe) {
+            const msgs = await fetchDirectThread(ChatCtx.recipientKey);
+            window.__directThreadCache = Array.isArray(msgs) ? msgs.slice() : [];
+            renderDirectThread(msgs);
+        }
+    } catch (e) {
+        console.error('❌ sendFromDirectChat:', e);
+        showToast('❌ Send failed: ' + (e.message || 'unknown error'), 'error', 5000);
+    } finally {
+        _sendingDirect = false;
+        if (btn) { btn.classList.remove('busy'); btn.disabled = false; btn.textContent = originalText || '📤 Send'; }
+    }
+}
+
+function audienceCount(aud) {
+    const s = State;
+    if (aud === 'agents')     return (s.agents || []).length;
+    if (aud === 'users')      return (s.users || []).length;
+    if (aud === 'businesses') return (s.businesses || []).length;
+    if (aud === 'clients')    return (s.clients || []).length;
+    if (aud === 'all')        return (s.agents||[]).length + (s.users||[]).length + (s.businesses||[]).length + (s.clients||[]).length;
+    return 0;
+}
+function audienceRecipients(aud) {
+    const out = [];
+    const push = (type, arr) => (arr || []).forEach(rec => {
+        out.push({ type, id: rec.id, key: recipientKeyFor(type, rec.id), label: recipientLabelFor(type, rec) });
+    });
+    if (aud === 'agents' || aud === 'all')     push('agents', State.agents);
+    if (aud === 'users' || aud === 'all')      push('users', State.users);
+    if (aud === 'businesses' || aud === 'all') push('businesses', State.businesses);
+    if (aud === 'clients' || aud === 'all')    push('clients', State.clients);
+    return out;
+}
+function updateBroadcastCount() {
+    const el = $('broadcastRecipientCount'); if (!el) return;
+    if (!BroadcastCtx.audience) { el.textContent = '— recipients'; $('sendBroadcast').disabled = true; return; }
+    const n = audienceCount(BroadcastCtx.audience);
+    el.innerHTML = `<strong>${n}</strong> recipient(s) — ${BroadcastCtx.audience}`;
+    $('sendBroadcast').disabled = !(n > 0 && ($('broadcastMessage').value || '').trim());
+}
+
+async function sendBroadcast() {
+    if (!sb) { showToast('❌ Supabase not configured', 'error'); return; }
+    const aud = BroadcastCtx.audience;
+    const text = ($('broadcastMessage').value || '').trim();
+    const asNotif = $('broadcastAsNotification').checked;
+    if (!aud) { showToast('❌ Choose an audience', 'error'); return; }
+    if (!text) { showToast('❌ Message is empty', 'error'); return; }
+    const recipients = audienceRecipients(aud);
+    if (!recipients.length) { showToast('❌ No recipients in that group', 'error'); return; }
+    if (!confirm(`📢 Send broadcast to ${recipients.length} ${aud}?\n\n"${text.substring(0,140)}${text.length>140?'…':''}"`)) return;
+
+    const btn = $('sendBroadcast');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Sending…'; }
+
+    const rows = recipients.map(r => ({
+        channel: 'broadcast',
+        recipient_key: r.key,
+        recipient_label: r.label,
+        sender_name: 'Admin',
+        sender_key: 'admin',
+        admin_sender: true,
+        message: (asNotif ? '📢 ' : '') + text
+    }));
+
+    try {
+        const CHUNK = 500;
+        let sent = 0;
+        for (let i = 0; i < rows.length; i += CHUNK) {
+            const slice = rows.slice(i, i + CHUNK);
+            const res = await sbTimeout(
+                sb.from('chat_messages').insert(slice),
+                12000,
+                'sendBroadcast-chunk-' + i
+            );
+            if (res.error) {
+                const msg = String(res.error.message || '').toLowerCase();
+                if (msg.includes('column') || msg.includes('schema cache') || msg.includes('does not exist')) {
+                    throw new Error('Database columns missing. Run the SQL migration for chat_messages.');
+                }
+                throw res.error;
+            }
+            sent += slice.length;
+        }
+        showToast(`📢 Broadcast sent to ${sent} account(s)`, 'success', 4200);
+        $('broadcastMessage').value = '';
+        $('broadcastAsNotification').checked = false;
+        $('broadcastModal').classList.remove('open');
+        BroadcastCtx.audience = null;
+        updateBroadcastCount();
+        touchLastUpdated();
+    } catch (e) {
+        console.error('❌ sendBroadcast:', e);
+        showToast('❌ Broadcast failed: ' + (e.message || 'unknown error'), 'error', 6000);
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '📤 Send Broadcast'; }
+    }
+}
+
+function wireBroadcastAudience() {
+    const grid = $('broadcastAudienceGrid'); if (!grid) return;
+    grid.querySelectorAll('.reason-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            grid.querySelectorAll('.reason-option').forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+            BroadcastCtx.audience = opt.dataset.aud;
+            updateBroadcastCount();
+        });
+    });
+    const msg = $('broadcastMessage');
+    if (msg) msg.addEventListener('input', updateBroadcastCount);
+}
+
+function wireChatFeatures() {
+    on('headerBroadcastBtn', 'click', () => {
+        BroadcastCtx.audience = null;
+        const grid = $('broadcastAudienceGrid');
+        if (grid) grid.querySelectorAll('.reason-option').forEach(o => o.classList.remove('selected'));
+        $('broadcastMessage').value = '';
+        $('broadcastAsNotification').checked = false;
+        updateBroadcastCount();
+        $('broadcastModal').classList.add('open');
+    });
+
+    on('closeDirectChat', 'click', () => {
+        $('directChatModal').classList.remove('open');
+        if (ChatCtx.unsubscribe) { try { ChatCtx.unsubscribe(); } catch (e) {} ChatCtx.unsubscribe = null; }
+        ChatCtx.type = null; ChatCtx.id = null; ChatCtx.recipientKey = null; ChatCtx.recipientLabel = '';
+        window.__directThreadCache = [];
+    });
+    on('directChatSend', 'click', sendFromDirectChat);
+
+    // Single stable Enter handler (never stacks)
+    (function bindDirectChatKeys() {
+        const inp = $('directChatInput');
+        if (!inp || inp._bound) return;
+        inp._bound = true;
+        inp.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                sendFromDirectChat();
+            }
+        });
+    })();
+
+    on('closeBroadcast', 'click', () => { $('broadcastModal').classList.remove('open'); BroadcastCtx.audience = null; });
+    on('cancelBroadcast', 'click', () => { $('broadcastModal').classList.remove('open'); BroadcastCtx.audience = null; });
+    on('sendBroadcast', 'click', sendBroadcast);
+    on('broadcastMessage', 'keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendBroadcast(); } });
+
+    wireBroadcastAudience();
+    window.__directThreadCache = [];
+}
+
+window.openDirectChat = openDirectChat;
+window.sendDirectMessage = sendDirectMessage;
+
+/* =================================================================
+   TAB SWITCHING + WIRING
+   ================================================================= */
+function switchTab(tab) {
+    State.activeTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
+    if (tab === 'transactions') loadTransactions();
+    else if (tab === 'agents') loadAgents();
+    else if (tab === 'businesses') loadBusinesses();
+    else if (tab === 'editbiz') loadBusinesses();
+    else if (tab === 'clients') loadClients();
+    else if (tab === 'users') loadUsers();
+    else if (tab === 'complaints') loadComplaints();
+    else if (tab === 'approvals') { loadPendingItems(); loadAgentClients(); }
+    else if (tab === 'paybacks') loadPaybacks();
+    else if (tab === 'subscribers') loadSubscribers();
+    else if (tab === 'chat') loadChat();
+}
+
+function updateKPIs() {
+    const tx = State.transactions || [];
+    const agents = State.agents || [];
+    const complaints = State.complaints || [];
+    const paybacks = State.paybacks || [];
+    const pending = State.pendingItems || [];
+    const clients = State.clients || [];
+    const users = State.users || [];
+    const subs = State.subscribers || [];
+
+    $('kpiTx').textContent = tx.length;
+    $('kpiTxSub').textContent = `${tx.filter(t => safeLower(t.status || 'confirmed') === 'confirmed').length} confirmed`;
+
+    const vol = tx.reduce((s, t) => s + (parseFloat(t.total) || 0), 0);
+    $('kpiVolume').textContent = fmtMoney(vol);
+
+    $('kpiAgents').textContent = agents.length;
+    $('kpiAgentsSub').textContent = `${agents.filter(a => a.approved).length} approved`;
+
+    $('kpiComplaints').textContent = complaints.length;
+    $('kpiComplaintsSub').textContent = `${complaints.filter(c => safeLower(c.status || 'pending') === 'pending').length} pending`;
+
+    $('kpiPaybacks').textContent = paybacks.length;
+    const payTotal = paybacks.reduce((s, p) => s + (parseFloat(p.agent_commission) || 0), 0);
+    $('kpiPaybacksSub').textContent = `${fmtMoney(payTotal)} total`;
+
+    const pendPending = pending.filter(p => (p.status || 'pending') === 'pending').length;
+    $('kpiApprovals').textContent = pending.length;
+    $('kpiApprovalsSub').textContent = `${pendPending} pending items`;
+
+    const allAccounts = agents.concat(State.businesses || [], clients, users);
+    const suspended = allAccounts.filter(isSuspended).length;
+    $('kpiSuspended').textContent = suspended;
+    $('kpiSuspendedSub').textContent = `${allAccounts.length} accounts total`;
+
+    $('kpiUsers').textContent = users.length;
+    $('kpiUsersSub').textContent = `${users.length} registered`;
+    $('kpiSubs').textContent = subs.length;
+
+    setBadge('badgeAgents', agents.filter(a => !a.approved).length);
+    setBadge('badgeBusinesses', (State.businesses || []).filter(b => !b.approved).length);
+    setBadge('badgeClients', clients.filter(c => safeLower(c.status || 'pending') === 'pending').length);
+    setBadge('badgeUsers', users.filter(u => isSuspended(u)).length);
+    setBadge('badgeComplaints', complaints.filter(c => safeLower(c.status || 'pending') === 'pending').length);
+    setBadge('badgeApprovals', pendPending);
+
+    const approveCount = pendPending + clients.filter(c => safeLower(c.status || 'pending') === 'pending').length;
+    const hb = $('approveCount'); if (hb) hb.textContent = approveCount;
+    const hbBtn = $('approveHeaderBtn'); if (hbBtn) hbBtn.classList.toggle('has-activity', approveCount > 0);
+}
+
+async function loadTransactions() {
+    setTxLoadStatus('Loading…', false);
+    State.transactions = await fetchTransactions();
+    renderTransactions(val('searchTx'));
+    updateKPIs();
+    touchLastUpdated();
+}
+async function loadAgents() {
+    State.agents = await fetchAgents();
+    renderAgents(val('searchAgents'));
+    updateKPIs();
+    touchLastUpdated();
+}
+async function loadBusinesses() {
+    State.businesses = await fetchBusinesses();
+    renderBusinesses(val('searchBusinesses'));
+    renderEditBiz(val('searchEditBiz'));
+    updateKPIs();
+    touchLastUpdated();
+}
+async function loadClients() {
+    State.clients = await fetchClients();
+    renderClients(val('searchClients'));
+    updateKPIs();
+    touchLastUpdated();
+}
+async function loadUsers() {
+    State.users = await fetchUsers();
+    renderUsers(val('searchUsers'));
+    updateKPIs();
+    touchLastUpdated();
+}
+async function loadComplaints() {
+    State.complaints = await fetchComplaints();
+    renderComplaints(val('searchComplaints'));
+    updateKPIs();
+    touchLastUpdated();
+}
+async function loadPaybacks() {
+    State.paybacks = await fetchPaybacks();
+    renderPaybacks(val('searchPaybacks'));
+    updateKPIs();
+    touchLastUpdated();
+}
+async function loadSubscribers() {
+    State.subscribers = await fetchSubscribers();
+    renderSubs(val('searchSubs'));
+    updateKPIs();
+    touchLastUpdated();
+}
+async function loadChat() {
+    const data = await fetchChat();
+    if (data !== null) State.chat = data;
+    renderChat();
+    touchLastUpdated();
+}
+async function loadPendingItems() {
+    State.pendingItems = await fetchPendingItems();
+    renderPending(val('searchPending'));
+    updateKPIs();
+    touchLastUpdated();
+}
+async function loadAgentClients() {
+    State.agentClients = await fetchAgentClients();
+    renderAgentClients(val('searchAgentClients'));
+    touchLastUpdated();
+}
+
+/* Wiring */
+document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+on('approveHeaderBtn', 'click', () => switchTab('approvals'));
+on('globalRefreshBtn', 'click', async () => {
+    showToast('🔄 Refreshing all data…', 'info', 1500);
+    await Promise.all([loadTransactions(), loadAgents(), loadBusinesses(), loadClients(), loadUsers(), loadComplaints(), loadPaybacks(), loadSubscribers(), loadChat(), loadPendingItems(), loadAgentClients()]);
+    showToast('✅ All data refreshed', 'success', 1800);
+});
+on('refreshTx', 'click', loadTransactions);
+on('refreshAgents', 'click', loadAgents);
+on('refreshBusinesses', 'click', loadBusinesses);
+on('refreshEditBiz', 'click', loadBusinesses);
+on('refreshClients', 'click', loadClients);
+on('refreshUsers', 'click', loadUsers);
+on('refreshComplaints', 'click', loadComplaints);
+on('refreshPaybacks', 'click', loadPaybacks);
+on('refreshSubs', 'click', loadSubscribers);
+on('refreshChat', 'click', loadChat);
+on('refreshPending', 'click', loadPendingItems);
+on('refreshAgentClients', 'click', loadAgentClients);
+on('searchTx', 'input', e => renderTransactions(e.target.value));
+on('searchAgents', 'input', e => renderAgents(e.target.value));
+on('searchBusinesses', 'input', e => renderBusinesses(e.target.value));
+on('searchEditBiz', 'input', e => renderEditBiz(e.target.value));
+on('searchClients', 'input', e => renderClients(e.target.value));
+on('searchUsers', 'input', e => renderUsers(e.target.value));
+on('searchComplaints', 'input', e => renderComplaints(e.target.value));
+on('searchPaybacks', 'input', e => renderPaybacks(e.target.value));
+on('searchSubs', 'input', e => renderSubs(e.target.value));
+on('searchPending', 'input', e => renderPending(e.target.value));
+on('searchAgentClients', 'input', e => renderAgentClients(e.target.value));
+on('agentStatusFilter', 'change', () => renderAgents(val('searchAgents')));
+on('businessStatusFilter', 'change', () => renderBusinesses(val('searchBusinesses')));
+on('clientStatusFilter', 'change', () => renderClients(val('searchClients')));
+on('userStatusFilter', 'change', () => renderUsers(val('searchUsers')));
+on('userRoleFilter', 'change', () => renderUsers(val('searchUsers')));
+on('pendingTypeFilter', 'change', () => renderPending(val('searchPending')));
+on('editBizCountryFilter', 'change', () => renderEditBiz(val('searchEditBiz')));
+on('toggleReviewed', 'click', () => { State.showReviewed = !State.showReviewed; $('toggleReviewed').textContent = State.showReviewed ? '🙈 Hide Reviewed' : '👁️ Show Reviewed'; renderPending(val('searchPending')); });
+
+/* Populate country filter */
+(function () {
+    const sel = $('editBizCountryFilter');
+    if (!sel) return;
+    COUNTRY_LIST.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+})();
+
+/* Close modals */
+on('closeModal', 'click', closeModal);
+on('closeReasonModal', 'click', closeReasonModal);
+on('cancelReason', 'click', closeReasonModal);
+on('confirmReason', 'click', confirmSuspendFromModal);
+on('closeEditBizModal', 'click', () => $('editBizModal').classList.remove('open'));
+$('detailModal').addEventListener('click', e => { if (e.target.id === 'detailModal') closeModal(); });
+$('reasonModal').addEventListener('click', e => { if (e.target.id === 'reasonModal') closeReasonModal(); });
+$('directChatModal').addEventListener('click', e => { if (e.target.id === 'directChatModal') $('closeDirectChat').click(); });
+$('broadcastModal').addEventListener('click', e => { if (e.target.id === 'broadcastModal') $('closeBroadcast').click(); });
+
+/* Diagnostics */
+on('diagnoseUsers', 'click', async () => {
+    showToast('🩺 Diagnosing user sources…', 'info', 1500);
+    USER_RESOLVED_SOURCE = null;
+    const users = await fetchUsers();
+    showToast(`✅ User source: ${USER_RESOLVED_SOURCE || 'unresolved'} · ${users.length} row(s)`, 'success', 4000);
+});
+on('showUserSource', 'click', () => { const el = $('userSourceInfo'); if (el) showToast(el.textContent, 'info', 3500); });
+on('diagnoseChat', 'click', async () => {
+    if (!sb) { showToast('❌ Supabase not configured', 'error'); return; }
+    showToast('🩺 Diagnosing chat…', 'info', 1200);
+    try {
+        const { data, error, count } = await sb.from('chat_messages').select('*', { count: 'exact', head: true });
+        if (error) throw error;
+        showToast(`✅ chat_messages reachable · ${count ?? 0} row(s)`, 'success', 4000);
+    } catch (e) { showToast('❌ Chat diagnose failed: ' + (e.message || 'unknown'), 'error', 5000); }
+});
+on('clearChatView', 'click', () => {
+    if (!confirm('Clear the local chat view? Messages stay in the database.')) return;
+    State.chat = []; renderChat();
+    showToast('🧹 Local chat view cleared', 'info', 2000);
+});
+on('exportTx', 'click', () => exportCSV('transactions', State.transactions));
+on('exportAgents', 'click', () => exportCSV('agents', State.agents));
+on('exportBusinesses', 'click', () => exportCSV('businesses', State.businesses));
+on('exportClients', 'click', () => exportCSV('clients', State.clients));
+on('exportUsers', 'click', () => exportCSV('users', State.users));
+on('exportPaybacks', 'click', () => exportCSV('paybacks', State.paybacks));
+on('exportSubs', 'click', () => exportCSV('subscribers', State.subscribers));
+on('showViolationLog', 'click', () => {
+    const all = [].concat(State.agents || [], State.businesses || [], State.clients || [], State.users || []);
+    const suspended = all.filter(r => isSuspended(r) && r.suspension_label);
+    if (!suspended.length) { showToast('✅ No violation records', 'info', 2200); return; }
+    openModal('📋 Violation Log', suspended.map(r => `
+        <div class="susp-history-item">
+            <strong>${escapeHTML(r.suspension_label)}</strong> — ${escapeHTML(accountTitle(r, 'agents'))}
+            <div class="sh-meta">${escapeHTML(r.suspension_notes || '')} · ${fmtDate(r.suspended_at)}</div>
+        </div>
+    `).join(''));
+});
+
+function exportCSV(name, rows) {
+    if (!rows || !rows.length) { showToast('⚠️ Nothing to export', 'warn', 2000); return; }
+    try {
+        const keys = Object.keys(rows[0]);
+        const csv = [keys.join(',')].concat(rows.map(r => keys.map(k => {
+            let v = r[k];
+            if (v && typeof v === 'object') v = JSON.stringify(v);
+            v = String(v ?? '').replace(/"/g, '""');
+            return /[",\n]/.test(v) ? `"${v}"` : v;
+        }).join(','))).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = `${name}_${Date.now()}.csv`; a.click();
+        URL.revokeObjectURL(url);
+        showToast(`⬇️ Exported ${name}.csv`, 'success', 2200);
+    } catch (e) { showToast('❌ Export failed: ' + e.message, 'error', 4000); }
+}
+
+/* Wire chat features before boot */
+wireChatFeatures();
+
+/* Bootstrap */
+(async function boot() {
+    try {
+        const sdkOk = await ensureSupabaseSDK();
+        if (!sdkOk) { showToast('❌ Supabase SDK failed to load', 'error', 6000); setConnection('offline'); return; }
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        window.sb = sb;
+        setConnection('online');
+        markBootComplete();
+        touchLastUpdated();
+        await Promise.all([
+            loadTransactions(), loadAgents(), loadBusinesses(), loadClients(),
+            loadUsers(), loadComplaints(), loadPaybacks(), loadSubscribers(),
+            loadChat(), loadPendingItems(), loadAgentClients()
+        ]);
+        console.log('✅ AfriPay Admin Dashboard v2.9.1 booted');
+    } catch (e) {
+        console.error('❌ Boot failed:', e);
+        setConnection('offline');
+        showToast('❌ Boot failed: ' + (e.message || 'unknown error'), 'error', 6000);
+    }
+})();
 </script>
 </body>
 </html>
